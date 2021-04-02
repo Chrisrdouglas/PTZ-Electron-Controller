@@ -7,7 +7,7 @@ const {app, BrowserWindow, ipcMain} = electron;
 function createWindow () {
   const win = new BrowserWindow({
     width: 1080,
-    height: 720,
+    height: 900,
     resizable: false,
     webPreferences: {
       //preload: path.join(__dirname, 'preload.js'),

@@ -1,0 +1,22 @@
+{
+    "cameraCommandURL": "http://{IP}/cgi-bin/aw_ptz?cmd={Command}&res=1",
+    "cameraVideoFeed": "http://{IP}/cgi-bin/mjpeg?resolution=1280x720&amp;framerate=30&amp;quality=1",
+    "commands": {
+        "zoomSpeed": [
+            "%23Z10",
+            "%23Z20",
+            "%23Z30",
+            "%23Z40",
+            "%23Z50",
+            "%23Z60",
+            "%23Z70",
+            "%23Z80",
+            "%23Z90"
+        ],
+        "powerControls": {
+            "on": "%23On",
+            "off": "%23Of"
+        },
+        "powerState": "%23O"
+    }
+}
