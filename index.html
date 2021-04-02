@@ -155,35 +155,43 @@
                     zbutton.classList.remove('ControllerButtonPressed');
                     zbutton.classList.add('ControllerButtonUnpressed');
                 }
-                zoom(y);
+                if (zoomState == true){
+                    zoom(y);
+                }
             }
             if (!obj['Buttons'].includes('C') && !obj['Buttons'].includes('Z'))
 
                 //update joystick position on screen
                 //console.log(obj['Joystick']['X']);
                 var newX = ((obj['Joystick']['X'] / (x * 2)) * outsideBox.clientWidth) - 12.5;
-            var newY = ((obj['Joystick']['Y'] / (y * 2)) * outsideBox.clientHeight) - 12.5;
-            //console.log(newX)
-            redDot.style.top = (outsideBox.clientHeight - 25 - newY) + "px";
-            redDot.style.left = newX + "px";
-            moveCamera(obj['Joystick']);
+                var newY = ((obj['Joystick']['Y'] / (y * 2)) * outsideBox.clientHeight) - 12.5;
+                //console.log(newX)
+                redDot.style.top = (outsideBox.clientHeight - 25 - newY) + "px";
+                redDot.style.left = newX + "px";
+                moveCamera(obj['Joystick']);
         }
 
         function zoom(yStick) {
+            if (yStick == y){
+                zoomState = false;
+            }
+            else{
+                zoomState = true;
+            }
             var percentage = yStick / (2 * y);
             var zoomChoice = Math.floor(percentage * camConfig['commands']['zoomSpeed'].length);
             sendZoomCommand(camConfig['commands']['zoomSpeed'][zoomChoice]);
         }
 
         function sendZoomCommand(speedChoice) {
-            //console.log(speedChoice);
+            console.log(speedChoice);
             var url = camConfig['cameraCommandURL'].replace('{IP}', config['cameraIP']).replace('{Command}', speedChoice);
             const http = new XMLHttpRequest();
             http.open("GET", url);
             http.send();
             http.onreadystatechange = (e) => {
                 //sleep(1000); // why isn't this working when i turn on the camera????
-                cameraPowerState();
+                //cameraPowerState();
             }
 
         }
