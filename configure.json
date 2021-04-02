@@ -1,8 +1,8 @@
 {
     "cameraIP": "192.168.86.228",
-    "cameraType":"AW-HN40",
+    "cameraType": "AW-HN40",
     "controllerComPort": "COM3",
     "lastX": 130,
-    "lastY": 128
-    
+    "lastY": 128,
+    "defaultAutoFocus": true
 }
