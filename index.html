@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chris' $50 Controller</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <h1>Chris' $50 Controller</h1>
+    <div class='ControlPanel'>
+        <div class='CameraControlContainer'>
+            <div class='CameraView'></div>
+            <div class='Controls'>
+                <div class='threeColumn'>
+                    <button class='Button PowerButton PowerButtonOff' id='PowerButton' value='off'>POWER</button>
+                </div>
+                <div class='threeColumn'>
+                    <div class='twoColumn'>
+                        <button class='Button ControllerButton ControllerButtonUnpressed' id='CButton'
+                            disabled>C</button>
+                        <button class='Button ControllerButton ControllerButtonUnpressed' id='ZButton'
+                            disabled>Z</button>
+                    </div>
+                    <div class='ControlStickDisplay'>
+                        <div class='OutsideBox' id='outsideBox'>
+                            <span class="dot" id='redDot'></span>
+                            <div class='InsideBox'></div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class='threeColumn'><select class='comSelector'>Com Selector</select></div>
+            </div>
+        </div>
+        <div class='ZoomBar'></div>
+    </div>
+    <script>
+        var x = 128;
+        var y = 128;
+        const electron = require('electron');
+        //const {ipcRenderer} = electron;
+        const SerialPort = require('serialport');
+        const Readline = require('@serialport/parser-readline')
+        var port = new SerialPort('COM3');
+        const parser = port.pipe(new Readline({ delimiter: '\n' }))
+
+
+        function updateControllerInfo(controllerState) {
+            //console.log(controllerState)
+            var obj = JSON.parse(controllerState);
+            var cbutton = document.getElementById('CButton');
+            if (obj['Buttons'].includes('C')) {
+                if (cbutton.classList.contains('ControllerButtonUnpressed')) {
+                    cbutton.classList.remove('ControllerButtonUnpressed');
+                    cbutton.classList.add('ControllerButtonPressed');
+                }
+                x = obj['Joystick']['X'];
+                y = obj['Joystick']['Y'];
+            }
+
+            else {
+                if (cbutton.classList.contains('ControllerButtonPressed')) {
+                    cbutton.classList.remove('ControllerButtonPressed');
+                    cbutton.classList.add('ControllerButtonUnpressed');
+                }
+            }
+
+            var zbutton = document.getElementById('ZButton');
+            if (obj['Buttons'].includes('Z')) {
+                if (zbutton.classList.contains('ControllerButtonUnpressed')) {
+                    zbutton.classList.remove('ControllerButtonUnpressed');
+                    zbutton.classList.add('ControllerButtonPressed');
+                }
+
+                //add code here for zoom
+            }
+
+            else {
+                if (zbutton.classList.contains('ControllerButtonPressed')) {
+                    zbutton.classList.remove('ControllerButtonPressed');
+                    zbutton.classList.add('ControllerButtonUnpressed');
+                }
+                //update joystick position on screen
+                var redDot = document.getElementById('redDot');
+                var outsideBox = document.getElementById('outsideBox');
+                console.log(obj['Joystick']['X']);
+                var newX = ((obj['Joystick']['X'] / (x * 2)) * outsideBox.clientWidth) - 12.5;
+                var newY = ((obj['Joystick']['Y'] / (y * 2)) * outsideBox.clientHeight) - 12.5;
+                //console.log(newX)
+                redDot.style.top = (outsideBox.clientHeight - 25 - newY)+"px";
+                redDot.style.left = newX+"px";
+            }
+
+
+
+
+        }
+        parser.on('data', updateControllerInfo)
+
+
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const replaceText = (selector, text) => {
+                const element = document.getElementById(selector)
+                if (element) element.innerText = text
+            }
+
+            for (const type of ['chrome', 'node', 'electron']) {
+                replaceText(`${type}-version`, process.versions[type])
+            }
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "electron-controller",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chrisrdouglas/PTZ-Electron-Controller.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Chrisrdouglas/PTZ-Electron-Controller/issues"
+  },
+  "homepage": "https://github.com/Chrisrdouglas/PTZ-Electron-Controller#readme",
+  "devDependencies": {
+    "electron": "^12.0.2",
+    "electron-rebuild": "^2.3.5"
+  },
+  "dependencies": {
+    "serialport": "^9.0.7"
+  }
+}
