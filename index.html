@@ -15,7 +15,8 @@
             <div class='CameraView'></div>
             <div class='Controls'>
                 <div class='threeColumn'>
-                    <button class='Button PowerButton PowerButtonOff' id='PowerButton' value='off'>POWER</button>
+                    <button class='Button PowerButton PowerButtonOff' id='powerButton' value='off'
+                        onclick="cameraPowerChange()" onmouseover="cameraPowerState()">POWER</button>
                 </div>
                 <div class='threeColumn'>
                     <div class='twoColumn'>
@@ -38,15 +39,65 @@
         <div class='ZoomBar'></div>
     </div>
     <script>
-        var x = 128;
-        var y = 128;
-        const electron = require('electron');
+        var config = require('./configure.json');
+        var x = config['lastX'];
+        var y = config['lastY'];
+        var IP = config['cameraIP'];
+
+
+        //const electron = require('electron');
         //const {ipcRenderer} = electron;
+        const fs = require('fs');
         const SerialPort = require('serialport');
         const Readline = require('@serialport/parser-readline')
-        var port = new SerialPort('COM3');
+        var port = new SerialPort(config["controllerComPort"]);
         const parser = port.pipe(new Readline({ delimiter: '\n' }))
 
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+
+        function cameraPowerState() {
+            //http://192.168.86.228/cgi-bin/aw_ptz?cmd=%23O&res=1
+            const http = new XMLHttpRequest();
+            const url = 'http://' + IP + '/cgi-bin/aw_ptz?cmd=%23O&res=1';
+            http.open("GET", url);
+            http.send();
+            http.onreadystatechange = (e) => {
+                var powerButton = document.getElementById('powerButton');
+                if (http.responseText == 'p1' && powerButton.classList.contains('PowerButtonOff')) {
+                    powerButton.classList.replace('PowerButtonOff', 'PowerButtonOn');
+                    powerButton.value = "on"
+                }
+                else if (http.responseText == 'p0' && powerButton.classList.contains('PowerButtonOn')) {
+                    powerButton.classList.replace('PowerButtonOn', 'PowerButtonOff');
+                    powerButton.value = 'off'
+                }
+            }
+        }
+
+        function cameraPowerChange() {
+            var powerButton = document.getElementById('powerButton');
+            if (powerButton.value == 'on') {
+                var url = 'http://' + IP + '/cgi-bin/aw_ptz?cmd=%23Of&res=1';
+                //confirm that we want to turn camera off
+                var r = confirm("Are you sure that you'd like to turn off the camera?");
+                if (r == false) {
+                    return
+                }
+            }
+            else{
+                var url = 'http://' + IP + '/cgi-bin/aw_ptz?cmd=%23On&res=1';
+            }
+            const http = new XMLHttpRequest();
+            http.open("GET", url);
+            http.send();
+            http.onreadystatechange = (e) => {
+                sleep(1000); // why isn't this working when i turn on the camera????
+                cameraPowerState();
+            }
+        }
 
         function updateControllerInfo(controllerState) {
             //console.log(controllerState)
@@ -54,25 +105,30 @@
             var cbutton = document.getElementById('CButton');
             if (obj['Buttons'].includes('C')) {
                 if (cbutton.classList.contains('ControllerButtonUnpressed')) {
-                    cbutton.classList.remove('ControllerButtonUnpressed');
-                    cbutton.classList.add('ControllerButtonPressed');
+                    cbutton.classList.replace('ControllerButtonUnpressed', 'ControllerButtonPressed');
                 }
                 x = obj['Joystick']['X'];
                 y = obj['Joystick']['Y'];
+
+                //write to config file
+                config['lastX'] = x;
+                config['lastY'] = y;
+                
+                try { fs.writeFileSync('./configure.json', JSON.stringify(config), 'utf-8'); }
+                catch(e) { console.log(e) }
+
             }
 
             else {
                 if (cbutton.classList.contains('ControllerButtonPressed')) {
-                    cbutton.classList.remove('ControllerButtonPressed');
-                    cbutton.classList.add('ControllerButtonUnpressed');
+                    cbutton.classList.replace('ControllerButtonPressed', 'ControllerButtonUnpressed');
                 }
             }
 
             var zbutton = document.getElementById('ZButton');
             if (obj['Buttons'].includes('Z')) {
                 if (zbutton.classList.contains('ControllerButtonUnpressed')) {
-                    zbutton.classList.remove('ControllerButtonUnpressed');
-                    zbutton.classList.add('ControllerButtonPressed');
+                    zbutton.classList.replace('ControllerButtonUnpressed', 'ControllerButtonPressed');
                 }
 
                 //add code here for zoom
@@ -86,12 +142,12 @@
                 //update joystick position on screen
                 var redDot = document.getElementById('redDot');
                 var outsideBox = document.getElementById('outsideBox');
-                console.log(obj['Joystick']['X']);
+                //console.log(obj['Joystick']['X']);
                 var newX = ((obj['Joystick']['X'] / (x * 2)) * outsideBox.clientWidth) - 12.5;
                 var newY = ((obj['Joystick']['Y'] / (y * 2)) * outsideBox.clientHeight) - 12.5;
                 //console.log(newX)
-                redDot.style.top = (outsideBox.clientHeight - 25 - newY)+"px";
-                redDot.style.left = newX+"px";
+                redDot.style.top = (outsideBox.clientHeight - 25 - newY) + "px";
+                redDot.style.left = newX + "px";
             }
 
 
