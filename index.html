@@ -48,6 +48,7 @@
         var y = config['lastY'];
         var IP = config['cameraIP'];
         var zoomState = false;
+        var camMoveState = false;
 
 
         //const electron = require('electron');
@@ -159,16 +160,18 @@
                     zoom(y);
                 }
             }
-            if (!obj['Buttons'].includes('C') && !obj['Buttons'].includes('Z'))
 
-                //update joystick position on screen
-                //console.log(obj['Joystick']['X']);
-                var newX = ((obj['Joystick']['X'] / (x * 2)) * outsideBox.clientWidth) - 12.5;
-                var newY = ((obj['Joystick']['Y'] / (y * 2)) * outsideBox.clientHeight) - 12.5;
-                //console.log(newX)
-                redDot.style.top = (outsideBox.clientHeight - 25 - newY) + "px";
-                redDot.style.left = newX + "px";
+            //update joystick position on screen
+            //console.log(obj['Joystick']['X']);
+            var newX = ((obj['Joystick']['X'] / (x * 2)) * outsideBox.clientWidth) - 12.5;
+            var newY = ((obj['Joystick']['Y'] / (y * 2)) * outsideBox.clientHeight) - 12.5;
+            //console.log(newX)
+            redDot.style.top = (outsideBox.clientHeight - 25 - newY) + "px";
+            redDot.style.left = newX + "px";
+            if (obj['Buttons'].length == 0){
                 moveCamera(obj['Joystick']);
+            }
+                
         }
 
         function zoom(yStick) {
@@ -193,11 +196,56 @@
                 //sleep(1000); // why isn't this working when i turn on the camera????
                 //cameraPowerState();
             }
-
         }
 
         function moveCamera(xy) {
+            if(xy['X'] == x && xy['Y'] == y){
+                if (camMoveState == true){
+                    camMoveState = false;
+                    sendMoveCommand("5050");
+                }
+                return;
+            }
+            camMoveState = true;
+            //commandX = ;
+            //commandY = ;
+            //console.log("XCommand: "+ commandX + ", X: " + xy['X']);
+            //console.log("YCommand: "+ commandY + ", Y: " + xy['Y']);
+            sendMoveCommand(padNum(calculateStickRange(xy['X'], x), 2)+ padNum(calculateStickRange(xy['Y'], y), 2));
             return;
+        }
+
+        function sendMoveCommand(speedChoice){
+            console.log(speedChoice);
+            var command = camConfig['commands']['cameraPanTilt'] + speedChoice;
+            var url = camConfig['cameraCommandURL'].replace('{IP}', config['cameraIP']).replace('{Command}', command);
+            const http = new XMLHttpRequest();
+            http.open("GET", url);
+            http.send();
+        }
+
+        function padNum(num, size){
+
+            num = num.toString();
+            while(num.length < size){
+                console.log(num)
+                num = '0' + num;
+            }
+            return num;
+        }
+
+        function calculateStickRange(stick, mean){
+            commandX = Math.floor(stick/(2*mean)*100);
+            console.log(commandX);
+            if (commandX <= 0){
+                return 1;
+            }
+            console.log(commandX);
+            if(commandX >= 100){
+                return 99;
+            }
+            //console.log(commandX);
+            return commandX;
         }
 
         function setAutoFocus(tf) {
@@ -212,10 +260,7 @@
             http.send();
         }
 
-        if(config['defaultAutoFocus']){
-            setAutoFocus(true);
-        }
-
+        setAutoFocus(config['defaultAutoFocus']);
         setInterval(cameraPowerState, 1000);
         parser.on('data', updateControllerInfo);
 

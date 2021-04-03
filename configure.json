@@ -4,5 +4,6 @@
     "controllerComPort": "COM3",
     "lastX": 130,
     "lastY": 128,
-    "defaultAutoFocus": true
+    "defaultAutoFocus": true,
+    "maxSpeed": 70
 }
