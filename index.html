@@ -43,7 +43,7 @@
     </div>
     <script>
         var config = require('./configure.json');
-        var camConfig = require('./' + config['cameraType'] + '.json')
+        var camConfig = require('./cameras/' + config['cameraType'] + '/commands.json');
         var x = config['lastX'];
         var y = config['lastY'];
         var IP = config['cameraIP'];
@@ -217,7 +217,7 @@
 
         function sendMoveCommand(speedChoice){
             console.log(speedChoice);
-            var command = camConfig['commands']['cameraPanTilt'] + speedChoice;
+            var command = camConfig['commands']['panTilt'] + speedChoice;
             var url = camConfig['cameraCommandURL'].replace('{IP}', config['cameraIP']).replace('{Command}', command);
             const http = new XMLHttpRequest();
             http.open("GET", url);
@@ -225,7 +225,6 @@
         }
 
         function padNum(num, size){
-
             num = num.toString();
             while(num.length < size){
                 console.log(num)
