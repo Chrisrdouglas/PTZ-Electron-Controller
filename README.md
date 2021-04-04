@@ -7,6 +7,7 @@ A PTZ Camera controller application that uses a Wii Nunchuck, to control the cam
 * Because I'm unemployed
     * I need something to do until I find a job
     * If you're hiring then here's a [link to my resume](http://jobshirt.us/)
+    * Pls feel free to [donate](https://paypal.me/Doogle9733/?locale.x=en_US)! I'm a bit poor at the moment because of the whole unemployed thing
 
 
 # What's Next?
