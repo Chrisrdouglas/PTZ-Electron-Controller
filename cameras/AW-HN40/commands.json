@@ -23,6 +23,6 @@
             "%23Z90"
         ],
         "zoom": "%23Z",
-        "cameraPanTilt": "%23PTS"
+        "panTilt": "%23PTS"
     }
 }
