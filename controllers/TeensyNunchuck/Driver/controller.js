@@ -1,22 +1,25 @@
-module.exports = class Index {
+module.exports = class Controller {
 
     constructor() {
-        this.config = require('./configure.json');
-        this.camConfig = require('./cameras/' + this.config.cameraType + '/commands.json');
-        this.x = this.config.lastX;
-        this.y = this.config.lastY;
+        this.config = require('../../../configure.json');
+        this.controllerConfig = require('./configuration.json')
+        this.camConfig = require('../../../cameras/' + this.config.cameraType + '/commands.json');
+        this.x = this.controllerConfig.lastX;
+        this.y = this.controllerConfig.lastY;
         this.zoomState = false;
         this.camMoveState = false;
-        const Driver = require('./cameras/' + this.config.cameraType + '/driver.js');
+        const Driver = require('../../../cameras/' + this.config.cameraType + '/driver.js');
         this.driver = new Driver(this.config);
 
         //const electron = require('electron');
         //const {ipcRenderer} = electron;
-        const fs = require('fs');
+        this.fs = require('fs');
         const SerialPort = require('serialport');
         const Readline = require('@serialport/parser-readline');
-        this.port = new SerialPort(this.config["controllerComPort"]);
+        const SpeedFunctions = require('../../../helpers/speedFunctions.js');
+        this.port = new SerialPort(this.controllerConfig.controllerComPort);
         this.parser = this.port.pipe(new Readline({ delimiter: '\n' }));
+        this.speedFunction = (new SpeedFunctions()).getSpeedFunctionByName(this.controllerConfig.speedFunction.name);
 
         //important references
         this.redDot = document.getElementById('redDot');
@@ -65,8 +68,9 @@ module.exports = class Index {
 
     updateControllerInfo(controllerState) {
         var obj = JSON.parse(controllerState);
-        var xPercent = this.controllerPercentageCalc(obj['Joystick']['X'], this.x);
-        var yPercent = this.controllerPercentageCalc(obj['Joystick']['Y'], this.y);
+
+        var xPercent = this.controllerPercentageCalc(obj.Joystick.X, this.x);
+        var yPercent = this.controllerPercentageCalc(obj.Joystick.Y, this.y);
 
         if (obj['Buttons'].includes('C')) {
             if (this.cbutton.classList.contains('ControllerButtonUnpressed')) {
@@ -77,10 +81,10 @@ module.exports = class Index {
             this.y = obj['Joystick']['Y'];
 
             //write to config file
-            this.config['lastX'] = this.x;
-            this.config['lastY'] = this.y;
+            this.controllerConfig['lastX'] = this.x;
+            this.controllerConfig['lastY'] = this.y;
 
-            try { fs.writeFileSync('./configure.json', JSON.stringify(config), 'utf-8'); }
+            try { this.fs.writeFileSync('./controllers/'+ this.config.controllerName+'/Driver/configuration.json', JSON.stringify(this.controllerConfig), 'utf-8'); }
             catch (e) { console.log(e); }
 
         }
@@ -97,7 +101,6 @@ module.exports = class Index {
                 this.zbutton.classList.remove('ControllerButtonUnpressed');
                 this.zbutton.classList.add('ControllerButtonPressed');
             }
-            //add code here for zoom
             this.driver.zoom(yPercent);
         }
         else {
@@ -106,20 +109,21 @@ module.exports = class Index {
                 this.zbutton.classList.add('ControllerButtonUnpressed');
             }
             if (this.zoomState == true) {
-                this.driver.zoom(this.controllerPercentageCalc(y, y));
+                this.driver.zoom(this.controllerPercentageCalc(this.y, this.y));
             }
         }
 
         //update joystick position on screen
-        //console.log(obj['Joystick']['X']);
         var newX = (xPercent * this.outsideBox.clientWidth) - 12.5;
         var newY = (yPercent * this.outsideBox.clientHeight) - 12.5;
-        //console.log(newX)
         this.redDot.style.top = (this.outsideBox.clientHeight - 25 - newY) + "px";
         this.redDot.style.left = newX + "px";
-        if (obj['Buttons'].length == 0) {
-            this.driver.panTilt(xPercent, yPercent);
+
+        //tell camera to pan and tilt
+        if (obj.Buttons.length == 0) {
+            this.driver.panTilt(xPercent, yPercent);//, (e) => {if(e) {this.camMoveState = true;}})
         }
+
 
     }
 

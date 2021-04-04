@@ -1,0 +1,41 @@
+<h1>Chris' $50 Controller</h1>
+<div class='ControlPanel'>
+    <div class='CameraControlContainer'>
+        <div class='CameraView'>
+            <img id="camera" src="" border="5px" width="680" height="400">
+
+        </div>
+        <div class='Controls'>
+            <div class='threeColumn'>
+                <button class='Button PowerButton PowerButtonOff' id='powerButton' value='off'
+                    onclick="controller.cameraPowerChange()" onmouseover="controller.cameraPowerState()">POWER</button>
+            </div>
+            <div class='threeColumn'>
+                <div class='twoColumn'>
+                    <button class='Button ControllerButton ControllerButtonUnpressed' id='CButton' disabled>C</button>
+                    <button class='Button ControllerButton ControllerButtonUnpressed' id='ZButton' disabled>Z</button>
+                </div>
+                <div class='ControlStickDisplay'>
+                    <div class='OutsideBox' id='outsideBox'>
+                        <span class="dot" id='redDot'></span>
+                        <div class='InsideBox'></div>
+                    </div>
+
+                </div>
+            </div>
+            <div class='threeColumn'><select class='comSelector'>Com Selector</select></div>
+        </div>
+    </div>
+    <div class='ZoomBar'></div>
+</div>
+<script>
+    //var config = require('./configure.json');
+    //var camConfig = require('./cameras/' + config.cameraType + '/commands.json');
+    //var driver = require('./cameras/' + config.cameraType + '/driver.js');
+    //console.log("I got here")
+    //const Controller = require('./controllers/' + config.controllerName + '/Driver/controller.js');
+    //var controller = new Controller();
+    //controller.startup();
+
+
+</script>

@@ -2,52 +2,37 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <title>Chris' $50 Controller</title>
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
-    <link rel="stylesheet" href="index.css">
+    <script>var controller = null;</script>
+
 </head>
 
 <body>
-    <h1>Chris' $50 Controller</h1>
-    <div class='ControlPanel'>
-        <div class='CameraControlContainer'>
-            <div class='CameraView'>
-                <img id="camera" src="" border="5px" width="680" height="400">
-
-            </div>
-            <div class='Controls'>
-                <div class='threeColumn'>
-                    <button class='Button PowerButton PowerButtonOff' id='powerButton' value='off'
-                        onclick="index.cameraPowerChange()" onmouseover="index.cameraPowerState()">POWER</button>
-                </div>
-                <div class='threeColumn'>
-                    <div class='twoColumn'>
-                        <button class='Button ControllerButton ControllerButtonUnpressed' id='CButton'
-                            disabled>C</button>
-                        <button class='Button ControllerButton ControllerButtonUnpressed' id='ZButton'
-                            disabled>Z</button>
-                    </div>
-                    <div class='ControlStickDisplay'>
-                        <div class='OutsideBox' id='outsideBox'>
-                            <span class="dot" id='redDot'></span>
-                            <div class='InsideBox'></div>
-                        </div>
-
-                    </div>
-                </div>
-                <div class='threeColumn'><select class='comSelector'>Com Selector</select></div>
-            </div>
-        </div>
-        <div class='ZoomBar'></div>
-    </div>
     <script>
-        //var config = require('./configure.json');
-        //var camConfig = require('./cameras/' + config.cameraType + '/commands.json');
-        //var driver = require('./cameras/' + config.cameraType + '/driver.js');
-        const Index = require('./index.js');
-        var index = new Index();
-        index.startup();
+        var config = require('./configure.json');
+        var headFile = './controllers/' + config.controllerName + './Display/head.html';
+        var bodyFile = './controllers/' + config.controllerName + './Display/body.html';
+        var httpHead = new XMLHttpRequest();
+        httpHead.onreadystatechange = () => {
+            if (httpHead.readyState == 4) {
+                if (httpHead.status == 200) { document.head.innerHTML = httpHead.responseText }
+            }
+        }
+        httpHead.open("GET", headFile);
+        httpHead.send();
+
+        var httpBody = new XMLHttpRequest();
+        httpBody.onreadystatechange = () => {
+            if (httpBody.readyState == 4) {
+                if (httpBody.status == 200) { document.body.innerHTML = httpBody.responseText }
+                const Controller = require('./controllers/' + config.controllerName + '/Driver/controller.js');
+                controller = new Controller();
+                controller.startup();
+            }
+        }
+        httpBody.open('GET', bodyFile);
+        httpBody.send();
+
+
 
         window.addEventListener('DOMContentLoaded', () => {
             const replaceText = (selector, text) => {

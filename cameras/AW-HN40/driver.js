@@ -1,11 +1,15 @@
 module.exports = class Driver {
+    /**
+     * Constructor for the AW-HN40 Driver class
+     * @param {Object} configJson Object containing the configuration stored in ./configure.json
+     */
     constructor(configJson) {
         this.commands = require("./commands.json");
         this.config = configJson;
         //var lastCommandTime = Date.now(); // need to wait 130 ms before sending another command. fix later
         //var customZoomSpeedFunction = null;
         //var customPanTiltSpeedFunction = null;
-        if (this.config.maxSpeed) {
+        if (!this.config.maxSpeed) {
             this.config.maxSpeed = 99;
         }
         if (this.config.maxSpeed < 99) {
@@ -21,10 +25,10 @@ module.exports = class Driver {
      */
     autoFocus(value, callback) {
         if (value) {
-            this.sendCommand(this.commands.commands.autoFocus.on, callback);
+            this.sendCamCommand(this.commands.commands.autoFocus.on, callback);
         }
         else {
-            this.sendCommand(this.commands.commands.autoFocus.off, callback);
+            this.sendCamCommand(this.commands.commands.autoFocus.off, callback);
         }
     }
 
@@ -49,7 +53,7 @@ module.exports = class Driver {
      * @param {function} callback Optional callback
      */
     getPowerState(callback) {
-        this.sendCommand(this.commands.commands.powerState, (e) => {
+        this.sendPTZCommand(this.commands.commands.powerState, (e) => {
             if (e.status == 200 && (e.responseText == "p1" || e.responseText == "p3")){
                 callback(true);
             }
@@ -85,24 +89,36 @@ module.exports = class Driver {
      * Makes camera pan and tilt
      * @param {float} xPercent Joystick's X value as a percentage of the maximum
      * @param {float} yPercent Joystick's Y value as a percentage of the maximum
-     * @param {function} callback optional callback function
+     * @param {function} callback optional callback function. Will pass true if command completed successfully
      */
     panTilt(xPercent, yPercent, callback) {
         var xSpeed = this.calculateSpeedFromPercentage(xPercent);
         xSpeed = this.padNum(xSpeed, 2); //make this into a 0 padded number
         var ySpeed = this.calculateSpeedFromPercentage(yPercent);
         ySpeed = this.padNum(ySpeed, 2);
-        this.sendCommand(this.commands.commands.panTilt + xSpeed + ySpeed, callback);
+        //console.log(xPercent)
+        //console.log(yPercent)
+        var command = this.commands.commands.panTilt + xSpeed + ySpeed;
+        this.sendPTZCommand(command, (e) => {
+            if (callback) {
+                if (e.status == 200 && e.responseText == command) {
+                    callback(true);
+                }
+                else {
+                    callback(false);
+                }
+            }
+        });
     }
 
     /**
-     * Sends commands to camera
+     * Sends ptz commands to camera
      * @param {string} command command to be executed on camera
      * @param {function=} callback optional callback
      */
-    sendCommand(command, callback) {
+    sendPTZCommand(command, callback) {
         const http = new XMLHttpRequest();
-        var url = (this.commands['cameraCommandURL'].replace('{IP}', this.config['cameraIP'])).replace('{Command}', command);
+        var url = (this.commands.ptzCommandURL.replace('{IP}', this.config['cameraIP'])).replace('{Command}', command);
         //'http://' + IP + '/cgi-bin/aw_ptz?cmd=%23O&res=1';
         http.open("GET", url);
         http.send();
@@ -113,6 +129,23 @@ module.exports = class Driver {
         }
     }
 
+        /**
+     * Sends camera commands to camera
+     * @param {string} command command to be executed on camera
+     * @param {function=} callback optional callback
+     */
+         sendCamCommand(command, callback) {
+            const http = new XMLHttpRequest();
+            var url = (this.commands.cameraCommandURL.replace('{IP}', this.config['cameraIP'])).replace('{Command}', command);
+            http.open("GET", url);
+            http.send();
+            if (callback) {
+                http.onreadystatechange = (e) => {
+                    callback(http);
+                }
+            }
+        }
+
     /**
      * Turns camera on or off
      * @param {boolean} power True will power on the camera. otherwise camera will power off
@@ -120,10 +153,10 @@ module.exports = class Driver {
      */
     setPower(power, callback) {
         if (power) {
-            this.sendCommand(this.commands.commands.powerControls.on, (e) => {this.verifySetPower(true, callback);});
+            this.sendPTZCommand(this.commands.commands.powerControls.on, (e) => {this.verifySetPower(true, callback);});
         }
         else {
-            this.sendCommand(this.commands.commands.powerControls.off, (e) => {this.verifySetPower(false, callback);});
+            this.sendPTZCommand(this.commands.commands.powerControls.off, (e) => {this.verifySetPower(false, callback);});
         }
     }
 
@@ -154,6 +187,6 @@ module.exports = class Driver {
     zoom(yPercent, callback) {
         var ySpeed = this.calculateSpeedFromPercentage(yPercent);
         ySpeed = this.padNum(ySpeed, 2); //make this into a 0 padded number
-        this.sendCommand(this.commands.commands.zoom + ySpeed, callback);
+        this.sendPTZCommand(this.commands.commands.zoom + ySpeed, callback);
     }
 };

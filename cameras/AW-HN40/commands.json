@@ -1,5 +1,6 @@
 {
-    "cameraCommandURL": "http://{IP}/cgi-bin/aw_ptz?cmd={Command}&res=1",
+    "ptzCommandURL": "http://{IP}/cgi-bin/aw_ptz?cmd={Command}&res=1",
+    "cameraCommandURL": "http://{IP}/cgi-bin/aw_cam?cmd={Command}&res=1",
     "cameraVideoFeed": "http://{IP}/cgi-bin/mjpeg?resolution=1280x720&amp;framerate=30&amp;quality=1",
     "commands": {
         "autoFocus": {

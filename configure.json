@@ -1,17 +1,6 @@
 {
     "cameraIP": "192.168.86.228",
     "cameraType": "AW-HN40",
-    "controllerComPort": "COM3",
-    "lastX": 130,
-    "lastY": 128,
-    "minMaxX": [
-        0,
-        255
-    ],
-    "minMaxY": [
-        0,
-        255
-    ],
     "defaultAutoFocus": true,
-    "maxSpeed": 70
+    "controllerName": "TeensyNunChuck"
 }
