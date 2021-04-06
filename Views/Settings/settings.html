@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title style="font-family: 'Oswald';">Configure</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" href="./settings.css">
+</head>
+
+<body>
+    <h1>Configuration</h1>
+    <div class="space"><b>Camera IP:</b>
+        <input type="text" id="cameraIP" name="cameraIP" value="">
+    </div>
+    <div class="space"><b>Camera Type:</b>
+        <select name="cameraType" id="cameraType">
+
+        </select>
+    </div>
+    <div class="space"><b>Controller:</b>
+        <select name="controllerName" id="controllerName"></select>
+    </div>
+    <div class="space"><b>Remember</b>
+        <input id='remember' type="checkbox">
+    </div>
+    <div>
+        <button onmousedown="save()">Apply</button>
+    </div>
+    <script src="./settings.js"></script>
+</body>
+
+</html>

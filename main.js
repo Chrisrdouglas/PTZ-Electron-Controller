@@ -2,9 +2,12 @@ const electron = require('electron')
 const url = require('url')
 const path = require('path')
 
-const {app, BrowserWindow, ipcMain} = electron;
+const { app, BrowserWindow, Menu, ipcMain } = electron;
 
-function createWindow () {
+function createWindow() {
+  // Create menu template
+  Menu.setApplicationMenu(Menu.buildFromTemplate(mainMenuTemplate));
+
   const win = new BrowserWindow({
     width: 1080,
     height: 900,
@@ -16,11 +19,56 @@ function createWindow () {
     }
   })
 
-  win.loadFile('index.html')
+  win.loadFile('./Views/Index/index.html')
   //win.on('closed', function(){ app.quit();}); // uncomment this to make app quit on main window quit
-
-
 }
+
+function makeSettingsWindow() {
+  const settings = new BrowserWindow({
+    width: 1000,
+    height: 1000,
+    resizable: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true
+    }
+  });
+
+  settings.loadFile('./Views/Settings/settings.html');
+}
+
+/*function makeControllerSettingsWindow() {
+  const settings = new BrowserWindow({
+    width: 1000,
+    height: 1000,
+    resizable: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true
+    }
+  });
+
+  settings.loadFile('./Views/Settings/settings.html');
+}
+
+function makeCameraSettingsWindow() {
+  const settings = new BrowserWindow({
+    width: 1000,
+    height: 1000,
+    resizable: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true
+    }
+  });
+
+  settings.loadFile('./Views/Settings/settings.html');
+}*/
+
+
 app.allowRendererProcessReuse = false
 
 app.whenReady().then(() => {
@@ -40,4 +88,49 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+const mainMenuTemplate = [
+  {
+    label: 'File',
+    submenu: [
+      {
+        label: 'Settings',
+        click() { makeSettingsWindow(); }
+      },
+      {
+        label: 'Exit',
+        accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
+        click() { app.quit(); }
+      }]
+  }/*,
+  {
+    label: 'Controller',
+    submenu: [
+      {
+        label: 'Settings',
+        click() { makeSettingsWindow(); }
+      },
+      {
+        label: 'Exit',
+        accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
+        click() { app.quit(); }
+      }]
+  }*/];
 
+// Add developer tools option if in dev
+if (process.env.NODE_ENV !== 'production') {
+  mainMenuTemplate.push({
+    label: 'Developer Tools',
+    submenu: [
+      {
+        role: 'reload'
+      },
+      {
+        label: 'Toggle DevTools',
+        accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+Shift+I',
+        click(item, focusedWindow) {
+          focusedWindow.toggleDevTools();
+        }
+      }
+    ]
+  });
+}

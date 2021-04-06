@@ -2,15 +2,17 @@
 <html>
 
 <head>
+    <link rel="stylesheet" href="./index.css">
     <script>var controller = null;</script>
 
 </head>
 
 <body>
+    <h1>Set up your system by going to: File > Setup</h1>
     <script>
-        var config = require('./configure.json');
-        var headFile = './controllers/' + config.controllerName + './Display/head.html';
-        var bodyFile = './controllers/' + config.controllerName + './Display/body.html';
+        var config = require('../../configure.json');
+        var headFile = '../../controllers/' + config.controllerName + '/Display/head.html';
+        var bodyFile = '../../controllers/' + config.controllerName + '/Display/body.html';
         var httpHead = new XMLHttpRequest();
         httpHead.onreadystatechange = () => {
             if (httpHead.readyState == 4) {
@@ -24,7 +26,7 @@
         httpBody.onreadystatechange = () => {
             if (httpBody.readyState == 4) {
                 if (httpBody.status == 200) { document.body.innerHTML = httpBody.responseText }
-                const Controller = require('./controllers/' + config.controllerName + '/Driver/controller.js');
+                const Controller = require('../../controllers/' + config.controllerName + '/Driver/controller.js');
                 controller = new Controller();
                 controller.startup();
             }
@@ -43,7 +45,12 @@
             for (const type of ['chrome', 'node', 'electron']) {
                 replaceText(`${type}-version`, process.versions[type])
             }
-        })
+        });
+
+
+        function checkConfig(){
+
+        }
     </script>
 </body>
 

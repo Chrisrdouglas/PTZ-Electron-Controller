@@ -1,0 +1,13 @@
+body { background-color: #001aff; color: white; font-family: 'Arial';}
+
+h1 {text-align: center;}
+
+select {right: 0; position: absolute; }
+
+input {right: 0; position: absolute;}
+
+#remember {left: 0; position: relative;}
+
+.space {margin-top: .5em;}
+
+button {margin-top: .5 em; padding: 10px}
