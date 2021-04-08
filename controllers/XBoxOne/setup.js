@@ -11,12 +11,11 @@ function setup(){
             }
         }
     }
-    httpBody.open('GET', './controller.svg');
+    httpBody.open('GET', '../../controllers/XBoxOne/controller.svg');
     httpBody.send();
 
     window.addEventListener("gamepadconnected", function (e) {
         gp = navigator.getGamepads()[e.gamepad.index];
-        console.log(gp);
         setInterval(() => {
         var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
         if (!gamepads) {

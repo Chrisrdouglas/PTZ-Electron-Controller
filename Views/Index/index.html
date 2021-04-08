@@ -20,11 +20,11 @@
         }
 
 
-        //var headFile = '../../controllers/' + config.controllerName + '/Display/head.html';
-        //var bodyFile = '../../controllers/' + config.controllerName + '/Display/body.html';
+        //let { setup } = requrie('../../cameras/' + config.cameraType + '/setup.js')
+        //setup();
 
         //controller Setup
-        let { setup } = require('./controller/' + config.controllerName + '/setup.js')
+        let { setup } = require('../../controllers/' + config.controllerName + '/setup.js')
         setup();
 
 
