@@ -11,12 +11,10 @@
     <div id="cameraScreen"></div>
     <div id="controller"></div>
     <script>
-        //var config = require('../../configure.json');
         try { var config = require('../../configure.json'); }
         catch (e) {
             //spawn settings
-            createBrowserWindow();
-            
+            createSettingsWindow();
         }
 
 
@@ -40,7 +38,7 @@
             }
         });
 
-        function createBrowserWindow() {
+        function createSettingsWindow() {
             const { BrowserWindow } = require('@electron/remote');
             const win = new BrowserWindow({
                 height: 600,

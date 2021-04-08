@@ -23,7 +23,7 @@ function setup(){
         }
         gp = gamepads[0];
         controllerDriver.update(gp);
-    }, 100);
+    }, 130);
     });
 }
 
