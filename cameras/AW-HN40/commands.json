@@ -23,7 +23,10 @@
             "%23Z80",
             "%23Z90"
         ],
+        "focus": "%23F",
         "zoom": "%23Z",
-        "panTilt": "%23PTS"
+        "panTilt": "%23PTS",
+        "tilt": "%23T",
+        "pan": "%23P"
     }
 }

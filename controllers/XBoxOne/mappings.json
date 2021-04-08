@@ -18,27 +18,30 @@
     "dPadRight",
     "xBoxButton"],
 
-    "Joysticks":{
-        "Left":{
+    "Joysticks":[
+        {
             "label": "leftStick",
             "xMinMax": [-1,1],
             "yMinMax": [-1,1],
             "invertY": true
         },
-        "Right":{
+        {
             "label": "rightStick",
             "xMinMax": [-1,1],
             "yMinMax": [-1,1],
             "invertY": true
         }
-    },
+    ],
 
-    "triggers":{
-        "Left":{
+    "triggers":[
+        {
+            "label": "leftTrigger",
             "buttonIndex": 6,
             "range": [0, 1]},
-        "Right":{
+        {
+            "label": "rightTrigger",
             "buttonIndex": 7,
-            "range": [0, 1]}
-    }
+            "range": [0, 1]
+        }
+    ]
 }

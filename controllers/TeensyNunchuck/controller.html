@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+</head>
+
+<body style="background-color: blue;">
+    <div id="controller"></div>
+
+    <script>
+        /*var httpBody = new XMLHttpRequest();
+        httpBody.onreadystatechange = () => {
+            if (httpBody.readyState == 4) {
+                if (httpBody.status == 200) {
+                    document.getElementById('controller').innerHTML = httpBody.responseText;
+                }
+            }
+        }
+        httpBody.open('GET', './controller.svg');
+        httpBody.send();*/
+
+        
+        
+        let {setup} = require('./setup.js')
+        setup();
+    </script>
+
+</html>
