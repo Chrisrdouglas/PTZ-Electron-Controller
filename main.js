@@ -1,6 +1,7 @@
 const electron = require('electron')
 const url = require('url')
-const path = require('path')
+const path = require('path');
+const { create } = require('domain');
 
 const { app, BrowserWindow, Menu, ipcMain } = electron;
 
@@ -21,6 +22,22 @@ function createWindow() {
 
   win.loadFile('./Views/Index/index.html')
   //win.on('closed', function(){ app.quit();}); // uncomment this to make app quit on main window quit
+}
+
+function createControllerWindow() {
+  Menu.setApplicationMenu(Menu.buildFromTemplate(mainMenuTemplate));
+  const gamepad = new BrowserWindow({
+    width: 1080,
+    height: 900,
+    resizable: false,
+    webPreferences: {
+      //preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  })
+  gamepad.loadFile('./controllers/XBoxOne/Display/controller.html')
+
 }
 
 function makeSettingsWindow() {
@@ -72,11 +89,13 @@ function makeCameraSettingsWindow() {
 app.allowRendererProcessReuse = false
 
 app.whenReady().then(() => {
-  createWindow()
+  //createWindow()
+  createControllerWindow();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
+      //createWindow()
+      createControllerWindow();
     }
   })
 })
