@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+              "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+              
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="3in" height="3in"
+     viewBox="0 0 300 300">
+       <style>
+        .button{
+        fill: grey; 
+        stroke: black;
+        stroke-width: 1;
+        }
+
+        .buttonPressed{
+            fill: orange !important;
+        }
+        
+        .stick{
+        fill: black; 
+        stroke: black;
+        stroke-width: 1;
+        }
+        
+        .padOut {
+        fill: white;
+        stroke: black;
+        stroke-width: 1;
+        }
+
+     </style>
+
+        <circle class="padOut" id="stickOut" cx="50" cy="50" r="34" />
+        <circle class="stick" id="stick" cx="50" cy="50" r="17" />
+
+        <ellipse class="button" id="cButton" cx="137" cy="20" rx="20" ry="15"/>
+        <rect class="button" id="zButton" x="100" y="50" width="75" height="50"  rx="15" />
+
+
+
+</svg>

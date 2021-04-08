@@ -37,8 +37,7 @@ function createControllerWindow() {
       contextIsolation: false
     }
   })
-  gamepad.loadFile('./controllers/XBoxOne/Display/controller.html')
-
+  gamepad.loadFile('./controllers/TeensyNunchuck/controller.html')
 }
 
 function makeSettingsWindow() {

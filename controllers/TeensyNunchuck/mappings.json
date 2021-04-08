@@ -1,0 +1,14 @@
+{
+    "controllerName": "Xbox 360 Controller (XInput STANDARD GAMEPAD)",
+    "buttonIndexes": ["cButton", "zButton"],
+    "Joysticks":[
+        {
+            "label": "stick",
+            "xMinMax": [0,255],
+            "yMinMax": [0,255],
+            "invertY": false
+        }
+    ],
+
+    "triggers":[]
+}
