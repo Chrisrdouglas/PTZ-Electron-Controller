@@ -89,13 +89,13 @@ function makeCameraSettingsWindow() {
 app.allowRendererProcessReuse = false
 
 app.whenReady().then(() => {
-  //createWindow()
-  createControllerWindow();
+  createWindow()
+  //createControllerWindow();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      //createWindow()
-      createControllerWindow();
+      createWindow()
+      //createControllerWindow();
     }
   })
 })
