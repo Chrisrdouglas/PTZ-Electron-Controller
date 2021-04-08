@@ -16,7 +16,8 @@ function createWindow() {
     webPreferences: {
       //preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      enableRemoteModule: true
     }
   })
 
@@ -85,7 +86,7 @@ function makeCameraSettingsWindow() {
   settings.loadFile('./Views/Settings/settings.html');
 }*/
 
-
+require('@electron/remote/main').initialize()
 app.allowRendererProcessReuse = false
 
 app.whenReady().then(() => {
