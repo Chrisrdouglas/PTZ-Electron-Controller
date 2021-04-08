@@ -1,6 +1,6 @@
 module.exports = class Driver {
 
-    constructor(sticks) {
+    constructor() {
         this.buttons = [document.getElementById('aButton'),
         document.getElementById('bButton'),
         document.getElementById('xButton'),
@@ -21,13 +21,12 @@ module.exports = class Driver {
         ];
         this.sticks = [document.getElementById('leftStick'),
         document.getElementById('rightStick')];
-        
+        this.cameraDriver = null;
         this.activationFunction = null;
         try { this.config = require('./controllerConfig'); }
         catch (e) { this.config = null; }
         this.leftStickCoords = [122, 100];
         this.rightStickCoords = [304, 173];
-        this.rightStickCoords
     }
 
     /**
@@ -85,6 +84,10 @@ module.exports = class Driver {
         this.processCommands(gp);
     }
 
+    /**
+     * fetches contoller's configuration file. This file contains the mappings between the buttons and the functions
+     * that a camera has.
+     */
     updateConfig() {
         try {
             this.config = require('./controllerConfig');
@@ -93,25 +96,28 @@ module.exports = class Driver {
         catch (e) { this.config = null; }
     }
 
+    /**
+     * get the activation function for the joysticks and triggers. an activation function is needed because the sticks
+     * too sensitive on their own.
+     */
     updateActivationFunction() {
         if (this.config.activationFunction) {
             var speedFunctions = require('../../../helpers/speedFunctions')
             this.activationFunction = (new speedFunctions()).getSpeedFunctionByName(this.config.activationFunction);
         }
-
     }
 
     /**
-     * this is the function where commands are processed
+     * This is the function where commands are processed. To be filled in later
      * @param {gamepad} gp gamepad object that is given to us every 100 ms
      */
     processCommands(gp) {
-        if (this.config) {
+        /*if (this.config) {
             for (var i = 0; i < gp.buttons; i++) {
 
             }
 
-        }
+        }*/
     }
 
 
