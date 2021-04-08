@@ -8,31 +8,22 @@
 </head>
 
 <body>
-    <h1>Set up your system by going to: File > Setup</h1>
+    <div id="cameraScreen"></div>
+    <div id="controller"></div>
     <script>
-        var config = require('../../configure.json');
-        var headFile = '../../controllers/' + config.controllerName + '/Display/head.html';
-        var bodyFile = '../../controllers/' + config.controllerName + '/Display/body.html';
-        var httpHead = new XMLHttpRequest();
-        httpHead.onreadystatechange = () => {
-            if (httpHead.readyState == 4) {
-                if (httpHead.status == 200) { document.head.innerHTML = httpHead.responseText }
-            }
+        try { var config = require('../../configure.json'); }
+        catch (e) {
+            //spawn settings
+            createSettingsWindow();
         }
-        httpHead.open("GET", headFile);
-        httpHead.send();
 
-        var httpBody = new XMLHttpRequest();
-        httpBody.onreadystatechange = () => {
-            if (httpBody.readyState == 4) {
-                if (httpBody.status == 200) { document.body.innerHTML = httpBody.responseText }
-                const Controller = require('../../controllers/' + config.controllerName + '/Driver/controller.js');
-                controller = new Controller();
-                controller.startup();
-            }
-        }
-        httpBody.open('GET', bodyFile);
-        httpBody.send();
+
+        //let { setup } = requrie('../../cameras/' + config.cameraType + '/setup.js')
+        //setup();
+
+        //controller Setup
+        let { setup } = require('../../controllers/' + config.controllerName + '/setup.js')
+        setup();
 
 
 
@@ -47,9 +38,19 @@
             }
         });
 
-
-        function checkConfig(){
-
+        function createSettingsWindow() {
+            const { BrowserWindow } = require('@electron/remote');
+            const win = new BrowserWindow({
+                height: 600,
+                width: 800, webPreferences: {
+                    nodeIntegration: true,
+                    contextIsolation: false,
+                    enableRemoteModule: true
+                }
+            });
+            win.loadFile('./Views/Settings/settings.html');
+            win.on('close', (event) => {window.location.reload();});
+            win.once('ready-to-show', () => { win.show(); });
         }
     </script>
 </body>
