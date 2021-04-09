@@ -28,5 +28,6 @@
         "panTilt": "%23PTS",
         "tilt": "%23T",
         "pan": "%23P"
-    }
+    },
+    "maxSpeed": 70
 }

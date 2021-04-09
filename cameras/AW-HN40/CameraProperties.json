@@ -1,0 +1,6 @@
+{
+    "Trigger":["zoomIn", "zoomOut", "focusIn", "focusOut", "panLeft", "panRight", "tiltUp", "tiltDown"],
+    "Joystick": ["Pan+Tilt", "Split X+Y Function"],
+    "PartialStick":["Zoom", "Focus", "Pan", "Tilt"],
+    "Button": ["autoFocus", "Load Preset", "Save Preset"]
+}

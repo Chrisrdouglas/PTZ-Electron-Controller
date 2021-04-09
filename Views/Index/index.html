@@ -2,57 +2,73 @@
 <html>
 
 <head>
+    <title>PTZ Controller</title>
     <link rel="stylesheet" href="./index.css">
     <script>var controller = null;</script>
 
 </head>
 
 <body>
-    <div id="cameraScreen"></div>
-    <div id="controller"></div>
-    <script>
-        try { var config = require('../../configure.json'); }
-        catch (e) {
-            //spawn settings
-            createSettingsWindow();
-        }
-
-
-        //let { setup } = requrie('../../cameras/' + config.cameraType + '/setup.js')
-        //setup();
-
-        //controller Setup
-        let { setup } = require('../../controllers/' + config.controllerName + '/setup.js')
-        setup();
-
-
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const replaceText = (selector, text) => {
-                const element = document.getElementById(selector)
-                if (element) element.innerText = text
+    <h1 id="camName">Open File>Settings</h1>
+    <!-- putting everything in flexboxes -->
+    <div class="container flexColumn">
+        <!-- first item in column is the camera feed -->
+        <div id="cameraContainer">
+            <img id="cameraFeed" src="" border="5px" width="680" height="400">
+        </div>
+        <!-- two items in this row -->
+        <div class="container" id="controlsContainer">
+            <!-- the first is any camera controls that the adapter might want to show (for example: Power Buttons, data, errors) -->
+            <div class="flexRow" id="cameraControlls"></div>
+            <!-- controller goes in this div -->
+            <div class="flexRow" id="controller"></div>
+        </div>
+        <script>
+            try { var config = require('../../configure.json'); }
+            catch (e) {
+                //spawn settings
+                createSettingsWindow();
             }
 
-            for (const type of ['chrome', 'node', 'electron']) {
-                replaceText(`${type}-version`, process.versions[type])
-            }
-        });
 
-        function createSettingsWindow() {
-            const { BrowserWindow } = require('@electron/remote');
-            const win = new BrowserWindow({
-                height: 600,
-                width: 800, webPreferences: {
-                    nodeIntegration: true,
-                    contextIsolation: false,
-                    enableRemoteModule: true
+            var Adapter = require('../../cameras/' + config.cameraType + '/adapter.js')
+            var cameraAdapter = new Adapter(config);
+
+            cameraAdapter.setup();
+
+            //controller Setup
+            var { setup } = require('../../controllers/' + config.controllerName + '/setup.js')
+            setup(cameraAdapter);
+
+
+
+            window.addEventListener('DOMContentLoaded', () => {
+                const replaceText = (selector, text) => {
+                    const element = document.getElementById(selector)
+                    if (element) element.innerText = text
+                }
+
+                for (const type of ['chrome', 'node', 'electron']) {
+                    replaceText(`${type}-version`, process.versions[type])
                 }
             });
-            win.loadFile('./Views/Settings/settings.html');
-            win.on('close', (event) => {window.location.reload();});
-            win.once('ready-to-show', () => { win.show(); });
-        }
-    </script>
+
+            function createSettingsWindow() {
+                const { BrowserWindow } = require('@electron/remote');
+                const win = new BrowserWindow({
+                    height: 600,
+                    width: 800, webPreferences: {
+                        nodeIntegration: true,
+                        contextIsolation: false,
+                        enableRemoteModule: true
+                    }
+                });
+                win.loadFile('./Views/Settings/settings.html');
+                win.on('close', (event) => { window.location.reload(); });
+                win.once('ready-to-show', () => { win.show(); });
+            }
+        </script>
+    </div>
 </body>
 
 </html>

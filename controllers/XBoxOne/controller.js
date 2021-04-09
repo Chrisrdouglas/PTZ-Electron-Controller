@@ -1,6 +1,6 @@
 module.exports = class Driver {
 
-    constructor() {
+    constructor(cameraDriver) {
         this.buttons = [document.getElementById('aButton'),
         document.getElementById('bButton'),
         document.getElementById('xButton'),
@@ -21,7 +21,7 @@ module.exports = class Driver {
         ];
         this.sticks = [document.getElementById('leftStick'),
         document.getElementById('rightStick')];
-        this.cameraDriver = null;
+        this.cameraDriver = cameraDriver;
         this.activationFunction = null;
         try { this.config = require('./controllerConfig'); }
         catch (e) { this.config = null; }

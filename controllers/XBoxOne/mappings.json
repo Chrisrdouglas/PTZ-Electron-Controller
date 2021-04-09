@@ -1,45 +1,45 @@
 {
     "controllerName": "Xbox 360 Controller (XInput STANDARD GAMEPAD)",
-    "buttonIndexes": ["aButton",
-    "bButton",
-    "xButton",
-    "yButton",
-    "leftBumper",
-    "rightBumper",
-    "leftTrigger",
-    "rightTrigger",
-    "selectButton",
-    "startButton",
-    "leftStick",
-    "rightStick",
-    "dPadUp",
-    "dPadDown",
-    "dPadLeft",
-    "dPadRight",
-    "xBoxButton"],
+    "buttonIndexes": ["A",
+    "B",
+    "X",
+    "Y",
+    "LB",
+    "RB",
+    "LT",
+    "RT",
+    "View Button",
+    "Menu Button",
+    "Left Stick Button",
+    "Right Stick Button",
+    "D-Pad Up",
+    "D-Pad Down",
+    "D-Pad Left",
+    "D-Pad Right",
+    "D-Pad Button"],
 
     "Joysticks":[
         {
-            "label": "leftStick",
+            "label": "Left Joystick",
             "xMinMax": [-1,1],
             "yMinMax": [-1,1],
             "invertY": true
         },
         {
-            "label": "rightStick",
+            "label": "Right Joystick",
             "xMinMax": [-1,1],
             "yMinMax": [-1,1],
             "invertY": true
         }
     ],
 
-    "triggers":[
+    "Triggers":[
         {
-            "label": "leftTrigger",
+            "label": "Left Trigger",
             "buttonIndex": 6,
             "range": [0, 1]},
         {
-            "label": "rightTrigger",
+            "label": "Right Trigger",
             "buttonIndex": 7,
             "range": [0, 1]
         }

@@ -1,2 +1,36 @@
 body { background-color: #001aff; color: white; font-family: Arial;}
 
+.container{
+    display: flex;
+}
+
+.flexColumn{
+    flex-direction: column;
+}
+
+.flexRow{
+    flex-direction: row;
+    justify-content: flex-start;
+    
+}
+
+.controlPannelButton{
+    padding: .25em 1em;
+    margin: .5em;
+    font-size: 20px;
+    text-decoration: none;
+    border: none;
+}
+
+.PowerButton{
+    float: center;
+    border: 2px solid #fff;
+}
+  
+.PowerButtonOff{
+    background-color: #F00;
+}
+  
+.PowerButtonOn{
+    background-color: #0F0;
+}

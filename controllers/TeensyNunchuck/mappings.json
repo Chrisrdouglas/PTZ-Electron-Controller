@@ -1,14 +1,13 @@
 {
-    "controllerName": "Xbox 360 Controller (XInput STANDARD GAMEPAD)",
+    "controllerName": "Chris' Teensy Nunchuck Controller",
     "buttonIndexes": ["cButton", "zButton"],
     "Joysticks":[
         {
-            "label": "stick",
+            "label": "Stick",
             "xMinMax": [0,255],
             "yMinMax": [0,255],
             "invertY": false
         }
     ],
-
-    "triggers":[]
+    "Triggers":[]
 }

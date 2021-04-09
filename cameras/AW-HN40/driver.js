@@ -4,7 +4,7 @@ module.exports = class Driver {
      * @param {Object} configJson Object containing the configuration stored in ./configure.json
      */
     constructor(configJson) {
-        this.commands = require("./commands.json");
+        this.commands = require("../../cameras/AW-HN40/commands.json");
         this.config = configJson;
         if (!this.config.maxSpeed) {
             this.config.maxSpeed = 99;
@@ -84,12 +84,15 @@ module.exports = class Driver {
      */
     getPowerState(callback) {
         this.sendPTZCommand(this.commands.commands.powerState, (e) => {
-            if (e.status == 200 && (e.responseText == "p1" || e.responseText == "p3")) {
-                callback(true);
+            if(e.readyState == XMLHttpRequest.DONE){ //check if the request is done first
+                if (e.status == 200 && (e.responseText == "p1" || e.responseText == "p3")) { //then check the response
+                    callback(true);
+                }
+                else {
+                    callback(false);
+                }
             }
-            else {
-                callback(false);
-            }
+            
         });
     }
 
@@ -130,12 +133,14 @@ module.exports = class Driver {
         //console.log(yPercent)
         var command = this.commands.commands.panTilt + xSpeed + ySpeed;
         this.sendPTZCommand(command, (e) => {
-            if (callback) {
-                if (e.status == 200 && e.responseText == command) {
-                    callback(true);
-                }
-                else {
-                    callback(false);
+            if(e.readyState == XMLHttpRequest.DONE){
+                if (callback) {
+                    if (e.status == 200 && e.responseText == command) {
+                        callback(true);
+                    }
+                    else {
+                        callback(false);
+                    }
                 }
             }
         });

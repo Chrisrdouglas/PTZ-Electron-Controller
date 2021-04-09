@@ -120,6 +120,17 @@ const mainMenuTemplate = [
         accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
         click() { app.quit(); }
       }]
+  },{
+    label: 'Help',
+    submenu: [
+      {
+        label: 'Coming in a later update',
+        click() { }
+      },
+      {
+        label: 'Donate',
+        click() { require('electron').shell.openExternal("https://paypal.me/Doogle9733/?locale.x=en_US"); }
+      }]
   }/*,
   {
     label: 'Controller',
