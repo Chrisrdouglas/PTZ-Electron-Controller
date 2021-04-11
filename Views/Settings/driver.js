@@ -38,11 +38,11 @@ module.exports = class Driver {
 
 
         //update application settings on screen with the ones used by new controller
-        try{
-        this.tabLeft.value = this.config.controllers[controllerName]['Application'].tabLeft;
-        this.tabRight.value = this.config.controllers[controllerName]['Application'].tabRight;
+        try {
+            this.tabLeft.value = this.config.controllers[controllerName]['Application'].tabLeft;
+            this.tabRight.value = this.config.controllers[controllerName]['Application'].tabRight;
         }
-        catch (e) {console.log("no defaults for this")}
+        catch (e) { console.log("no defaults for this") }
 
         //get camera's function list from /cameras/CAMERANAME/cameraProperties
         this.cameraFunctions = require('../../cameras/' + cameraType + '/CameraProperties.json');
@@ -77,7 +77,7 @@ module.exports = class Driver {
 
         var first = '<div class="space"><b>{FUNCTIONNAME} ({TYPE})</b>'
         var second = '<input class="controllerInput" type="text" id="{FUNCTIONNAME}" name="tabRight" value="" onmousedown="driver.selected(id)" readonly><button class="clearButton" onmouseup="driver.clear({FUNCTIONNAME})">Clear</button></div>';
-    
+
 
         //var functions = this.cameraFunctions.keys();
         for (var key in this.cameraFunctions) {
@@ -91,7 +91,7 @@ module.exports = class Driver {
         this.cameraMappings.innerHTML = newInnerHTML;
     }
 
-    selected(id){
+    selected(id) {
         this.selectedID = document.getElementById(id);
     }
 
@@ -106,23 +106,23 @@ module.exports = class Driver {
     }
 
     updateControllerState(controllerState) {
-        //console.log(controllerState)
+        console.log(controllerState)
         //this.selectedID is the name of the function that we're trying to set values for
-        if (!this.selectedID){
+        if (!this.selectedID) {
             return;
         }
 
         // if there's nothing interesting about the controller then terminate early so that we dont override something
-        
-        if (controllerState.Buttons.length == 0 && controllerState.Triggers.length == 0){
+
+        if (controllerState.Buttons.length == 0 && controllerState.Triggers.length == 0) {
             var countActive = 0;
-            for(var i in controllerState.Joysticks){
-                if(controllerState.Joysticks[i].xActive || controllerState.Joysticks[i].yActive){
+            for (var i in controllerState.Joysticks) {
+                if (controllerState.Joysticks[i].xActive || controllerState.Joysticks[i].yActive) {
                     countActive++;
                 }
-                
+
             }
-            if (countActive == 0){ //nothing here. terminate early
+            if (countActive == 0) { //nothing here. terminate early
                 return;
             }
         }
@@ -133,54 +133,96 @@ module.exports = class Driver {
         console.log(this.selectedID.id)
         var inputType = this.cameraFunctions[this.selectedID.id].inputType
 
-        if (inputType == "Button"){
-            //itterate over all the buttons. 
-
-            //set command and terminate early
+        if (inputType == 'Button') {
+            //itterate over all the buttons.
+            for (var button in controllerState.Buttons) {
+                if (controllerState.Buttons[button].pressed) {
+                    command += controllerState.Buttons[button].label;
+                    break;
+                }
+            }
+            //if no button was pressed then no need to update the value
+            if (command == '') {
+                return;
+            }
+            else { //set command and terminate early
+                this.selectedID.value = command;
+                return;
+            }
         }
-        else{
+        else {
 
-            if(inputType == "Trigger"){ // check if it's a trigger type first because functions that can be mapped with them
-                for (var k in controllerState.Triggers){
-                    if(controllerState.Triggers[k].pressed){
+            if (inputType == 'Trigger') { // check if it's a trigger type first because functions that can be mapped with them
+                for (var k in controllerState.Triggers) {
+                    if (controllerState.Triggers[k].pressed) {
                         command += controllerState.Triggers[k].label
                         break;
                     }
                 }
+            }
+            else if (inputType == 'PartialJoystick') {
+                var maxJoystickValue = 0.0;
+                var joystickName = null;
+                for (var i in controllerState.Joysticks) {
+                    //Look for the joystick that has the highest value for its X or Y component
+                    //we want to take the absolute value because that allows for controllers that
+                    //use the [0,1] range style as well as the [0,255] style
+
+                    //we're appending a .X or .Y to the joystick name to keep track of what axis
+                    //will be used
+                    if (Math.abs(controllerState.Joysticks[i].X) > maxJoystickValue) {
+                        joystickName = controllerState.Joysticks[i].label + '.X';
+                        maxJoystickValue = Math.abs(controllerState.Joysticks[i].X);
+                    }
+                    if (Math.abs(controllerState.Joysticks[i].Y) > maxJoystickValue) {
+                        joystickName = controllerState.Joysticks[i].label + '.Y';
+                        maxJoystickValue = Math.abs(controllerState.Joysticks[i].Y);
+                    }
+                }
+                if (joystickName) {
+                    command += joystickName;
+                }
 
             }
-            else if (inputType == "PartialJoystick"){
+            else if (inputType == 'Joystick') {
+                //use the same method as Partial Joystick except that we dont append a ".X" or ".Y"
+                var maxJoystickValue = 0.0;
+                var joystickName = null;
+                for (var i in controllerState.Joysticks) {
+                    if (Math.abs(controllerState.Joysticks[i].X) > maxJoystickValue) {
+                        joystickName = controllerState.Joysticks[i].label;
+                        maxJoystickValue = Math.abs(controllerState.Joysticks[i].X);
+                    }
+                    if (Math.abs(controllerState.Joysticks[i].Y) > maxJoystickValue) {
+                        joystickName = controllerState.Joysticks[i].label;
+                        maxJoystickValue = Math.abs(controllerState.Joysticks[i].Y);
+                    }
+                }
+                if (joystickName) {
+                    command += joystickName;
+                }
+
 
             }
-            else if (inputType == "Joystick"){ //last possible option is joystick 
-
-            }
-            else{ // There is something wrong with the CameraProperties.json
-                console.log(inputType + " is not a valid controller input option");
+            else { // There is something wrong with the CameraProperties.json
+                console.log(inputType + ' is not a valid controller input option');
                 return;
             }
 
             //aaaanddd now we check if there is a button so long as command is not ''
-            if (command != ''){
-                for(var button in controllerState.Buttons){
-                    if (controllerState.Buttons[button].pressed){
-                        command += " + " + controllerState.Buttons[button].label;
+            if (command != '') {
+                for (var button in controllerState.Buttons) {
+                    if (controllerState.Buttons[button].pressed) {
+                        command += ' + ' + controllerState.Buttons[button].label;
                         break;
                     }
                 }
+                this.selectedID.value = command;
             }
-
-
-
         }
-
-        this.selectedID.value = command;
-        
-
-
     }
 
-    clear(){
+    clear() {
         this.selectedID.value = '';
     }
 
@@ -192,7 +234,7 @@ module.exports = class Driver {
         var controllerName = this.controllerName.value;
         var cameraType = this.cameraType.value;
 
-        if (!controllerName || controllerName == "Select" || !cameraType || cameraType == "Select") {
+        if (!controllerName || controllerName == 'Select' || !cameraType || cameraType == 'Select') {
             return;
         }
 
