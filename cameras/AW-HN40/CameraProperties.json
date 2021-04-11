@@ -1,6 +1,19 @@
 {
-    "Trigger":["zoomIn", "zoomOut", "focusIn", "focusOut", "panLeft", "panRight", "tiltUp", "tiltDown"],
-    "Joystick": ["Pan+Tilt", "Split X+Y Function"],
-    "PartialStick":["Zoom", "Focus", "Pan", "Tilt"],
-    "Button": ["autoFocus", "Load Preset", "Save Preset"]
+
+    "zoomIn": {"inputType": "Trigger"},
+    "zoomOut": {"inputType": "Trigger"},
+    "zoom": {"inputType": "PartialJoystick"},
+    "focusIn": {"inputType": "Trigger"},
+    "focusOut": {"inputType": "Trigger"},
+    "focus": {"inputType": "PartialJoystick"},
+    "panLeft": {"inputType": "Trigger"},
+    "panRight": {"inputType": "Trigger"},
+    "pan": {"inputType": "PartialJoystick"},
+    "tiltUp": {"inputType": "Trigger"},
+    "tiltDown": {"inputType": "Trigger"},
+    "tilt" : {"inputType": "PartialJoystick"},
+    "Pan+Tilt": {"inputType": "Joystick"},
+    "autoFocus":{"inputType": "Button"},
+    "power":{"inputType": "Button"}
+
 }

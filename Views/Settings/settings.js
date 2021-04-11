@@ -64,12 +64,9 @@ function populateSelect(id, path) {
     select.innerHTML = newInnerHTML;
 }
 
-/**
- * 
- * @param {*} path 
- * @returns 
- */
-function populateButtonSettings() {
+
+function populateButtonSettings(driver) {
+    console.log(driver.getSubscribed())
     var controllerName = document.getElementById('controllerName').value;
     var cameraType = document.getElementById('cameraType').value;
     if (!controllerName || controllerName == "Select" || !cameraType || cameraType == "Select") {
@@ -77,75 +74,10 @@ function populateButtonSettings() {
     }
 
     buttonMappings = document.getElementById('buttonMappings');
-    //ugh, i might as well be writing PHP
-    var open = '<div class="space"><b>{NAME}:</b>\n<select name="{NAME}" id="{NAME}">\n'
-    var stickOpen = '<div class="space"><div id="stick{STICKINDEX}"><b>{NAME}:</b>\n<select name="{NAME}" id="{NAME}" onchange="splitStick(id)">\n'
-    var option = '<option value="{OPTION}">{OPTION}</option>\n'
-    var close = '</select></div>'
-    var stickClose = '</select><div id="{STICKNAME}-X"></div><div id="{STICKNAME}-Y"></div></div></div>'
+    var {setup} = require('../../controllers/' + controllerName + '/setup.js');
+    setup(driver)
 
-    //get file from controller
-    try { var mappingsFile = require('../../controllers/' + controllerName + '/mappings.json'); }
-    catch (e) {
-        console.log('Mappings file not found for controller');
-        return;
-    }
-
-    try { var mappable = require('../../cameras/' + cameraType + '/CameraProperties.json'); }
-    catch (e) {
-        console.log('Camera properties file not found for camera');
-        return;
-    }
-
-
-    console.log(mappable);
-
-    var append = '<h2>Triggers</h2>'
-    var trigIndexes = [];
-
-    //itter over triggers
-    for (var i = 0; i < mappingsFile.Triggers.length; i++) {
-        var newTrigger = open.replaceAll('{NAME}', mappingsFile.Triggers[i].label);
-        trigIndexes.push(mappingsFile.Triggers[i].buttonIndex);
-        newTrigger += '<option value="Select" selected disabled hidden>Select</option>\n';
-        for (var j = 0; j < mappable.Trigger.length; j++) {
-            newTrigger += option.replaceAll('{OPTION}', mappable.Trigger[j]);
-        }
-        newTrigger += close;
-        append += newTrigger;
-    }
-
-    append += '<h2>Buttons</h2>';
-    //itter over buttons
-    for (var i = 0; i < mappingsFile.buttonIndexes.length; i++) {
-        //This is going to make the ID the joystick's name.
-        //For example: an XboxController's left stick is going to now have an ID of 'Left Joystick'
-        //when looking it up with document.getElementsById().
-        var newJoystick = open.replaceAll('{NAME}', mappingsFile.buttonIndexes[i]);
-        newJoystick += '<option value="Select" selected disabled hidden>Select</option>\n';
-        for (var j = 0; j < mappable.Button.length; j++) {
-            newJoystick += option.replaceAll('{OPTION}', mappable.Button[j]);
-        }
-        newJoystick += close;
-        append += newJoystick;
-    }
-
-    append += '<h2>Sticks</h2>'
-    //itter over sticks
-    for (var i = 0; i < mappingsFile.Joysticks.length; i++) {
-        //This is going to make the ID the joystick's name.
-        //For example: an XboxController's left stick is going to now have an ID of 'Left Joystick'
-        //when looking it up with document.getElementsById().
-        var newJoystick = stickOpen.replaceAll('{NAME}', mappingsFile.Joysticks[i].label)
-        newJoystick = newJoystick.replaceAll('{STICKINDEX}', i)
-        newJoystick += '<option value="Select" selected disabled hidden>Select</option>\n';
-        for (var j = 0; j < mappable.Joystick.length; j++) {
-            newJoystick += option.replaceAll('{OPTION}', mappable.Joystick[j]);
-        }
-        newJoystick += stickClose.replaceAll('{STICKNAME}', mappingsFile.Joysticks[i].label);
-        append += newJoystick;
-    }
-    buttonMappings.innerHTML = append;
+    
 }
 
 function splitStick(id) {
@@ -230,7 +162,7 @@ function load() {
         controllerName.value = configFile.controllerName;
 
         //populate+load button mappings
-        populateButtonSettings();
+        populateButtonSettings(driver);
         var controller = configFile[configFile.controllerName][configFile.cameraType];
 
         try { var mappable = require('../../cameras/' + configFile.cameraType + '/CameraProperties.json'); }
@@ -264,5 +196,4 @@ function load() {
 
 
 }
-
 load();

@@ -21,12 +21,27 @@ module.exports = class Driver {
         ];
         this.sticks = [document.getElementById('leftStick'),
         document.getElementById('rightStick')];
+        
+        //cameraDriver
         this.cameraDriver = cameraDriver;
-        this.activationFunction = null;
-        try { this.config = require('./controllerConfig'); }
-        catch (e) { this.config = null; }
+        try { this.cameraDriver.setController(this) }
+        catch (e) { console.log('This Camera Driver does not have a setController function') }
+        
+        //controller configuration
+        //try { this.config = require('./controllerConfig'); }
+        //catch (e) { this.config = null; }
+        
+        //maps the button indexes from gamepad to the button names
+        try { this.mappings = require('./mappings.json') }
+        catch (e) { console.log('mappings.json is missing') }
+        
+        //x and y coords for where the centers of the joystick circles should be
         this.leftStickCoords = [122, 100];
         this.rightStickCoords = [304, 173];
+
+        //raw controller data
+        this.rawData = null;
+        this.cameraState = null;
     }
 
     /**
@@ -34,13 +49,17 @@ module.exports = class Driver {
      * @param {gamepad} gp state of the controller
      */
     update(gp) {
-
-        // update display on application
+        this.rawData = gp;
+        var Buttons = [];
+        var Joysticks = []
+        var Triggers = []
+        // update display on application and collect information about the buttons into an object
         for (var i = 0; i < 6; i++) {
             var displayButton = this.buttons[i]; //didn't need to make a seperate var but it
             var buttonState = gp.buttons[i];     // makes the code more readable for me
             if (buttonState.pressed) {
                 displayButton.classList.add('buttonPressed');
+                Buttons.push({ label: this.mappings.buttonIndexes[i], pressed: true, value: 1 })
             }
             else {
                 if (displayButton.classList.contains('buttonPressed')) {
@@ -53,6 +72,9 @@ module.exports = class Driver {
         for (var i = 6; i < 8; i++) {
             var displayButton = this.buttons[i];
             var buttonState = gp.buttons[i];
+            if (buttonState.pressed) {
+                Triggers.push({ label: this.mappings.buttonIndexes[i], pressed: true, value: buttonState.value })
+            }
             displayButton.setAttribute('fill-opacity', Math.floor(buttonState.value * 100) + '%');
         }
 
@@ -62,6 +84,7 @@ module.exports = class Driver {
             var buttonState = gp.buttons[i];
             if (buttonState.pressed) {
                 displayButton.classList.add('buttonPressed');
+                Buttons.push({ label: this.mappings.buttonIndexes[i], pressed: true, value: 1 })
             }
             else {
                 if (displayButton.classList.contains('buttonPressed')) {
@@ -79,9 +102,60 @@ module.exports = class Driver {
         this.sticks[1].setAttribute('cx', this.rightStickCoords[0] + 17 * gp.axes[2]);
         this.sticks[1].setAttribute('cy', this.rightStickCoords[1] + 17 * gp.axes[3]);
 
+        var leftStick = { label: 'Left Joystick' }
+        var rightStick = { label: 'Right Joystick' }
+        //get values from the two joysticks.
+        //this long chain of if statements looks disgusting
+        //but is necessary
+        if (Math.abs(gp.axes[0]) > .095) {
+            leftStick.X = gp.axes[0];
+            leftStick.xActive = true;
+        }
+        else {
+            leftStick.X = 0.0;
+            leftStick.xActive = false;
+        }
+
+        if (Math.abs(gp.axes[1]) > .095) {
+            leftStick.Y = gp.axes[1];
+            leftStick.yActive = true;
+        }
+        else {
+            leftStick.Y = 0.0;
+            leftStick.yActive = false;
+        }
+
+        if (Math.abs(gp.axes[2]) > .095) {
+            rightStick.X = gp.axes[2];
+            rightStick.xActive = true;
+        }
+        else {
+            rightStick.X = 0.0;
+            rightStick.xActive = false;
+        }
+
+        if (Math.abs(gp.axes[3]) > .095) {
+            rightStick.Y = gp.axes[3];
+            rightStick.yActive = true;
+        }
+        else {
+            rightStick.Y = 0.0;
+            rightStick.yActive = false;
+        }
+
+        Joysticks.push(leftStick)
+        Joysticks.push(rightStick)
+        
+        
+        
+        this.controllerState = {
+            Buttons:Buttons,
+            Joysticks:Joysticks,
+            Triggers:Triggers
+        }
 
         //process commands attached to buttons
-        this.processCommands(gp);
+        this.processCommands();
     }
 
     /**
@@ -108,16 +182,20 @@ module.exports = class Driver {
     }
 
     /**
-     * This is the function where commands are processed. To be filled in later
-     * @param {gamepad} gp gamepad object that is given to us every 100 ms
+     * This is the function where commands are processed. This will account for
+     * controller deadzone and 
+     * @param {gamepad} gp gamepad object that is given to us every 130 ms
      */
     processCommands(gp) {
-        /*if (this.config) {
-            for (var i = 0; i < gp.buttons; i++) {
-
+        try{
+            if (this.cameraDriver.getSubscribed()){
+                this.cameraDriver.updateControllerState(this.controllerState);
             }
+        }
+        catch (e) {
+            console.log(e)
+        }
 
-        }*/
     }
 
 

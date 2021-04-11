@@ -12,11 +12,11 @@
     "Menu Button",
     "Left Stick Button",
     "Right Stick Button",
-    "D-Pad Up",
-    "D-Pad Down",
-    "D-Pad Left",
-    "D-Pad Right",
-    "D-Pad Button"],
+    "Up",
+    "Down",
+    "Left",
+    "Right",
+    "Xbox Button"],
 
     "Joysticks":[
         {
@@ -35,11 +35,11 @@
 
     "Triggers":[
         {
-            "label": "Left Trigger",
+            "label": "LT",
             "buttonIndex": 6,
             "range": [0, 1]},
         {
-            "label": "Right Trigger",
+            "label": "RT",
             "buttonIndex": 7,
             "range": [0, 1]
         }

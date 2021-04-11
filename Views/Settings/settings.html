@@ -10,18 +10,31 @@
 <body>
     <h1>Configuration</h1>
     <div class="space"><b>Camera IP:</b>
-        <input type="text" id="cameraIP" name="cameraIP" value="">
+        <input class="normalInput" type="text" id="cameraIP" name="cameraIP" value="">
     </div>
     <div class="space"><b>Camera Type:</b>
-        <select name="cameraType" id="cameraType">
+        <select name="cameraType" id="cameraType" onchange="driver.deviceChanged()">
 
         </select>
     </div>
     <div class="space"><b>Controller:</b>
-        <select name="controllerName" id="controllerName" onchange="populateButtonSettings()"></select>
+        <select name="controllerName" id="controllerName" onchange="driver.deviceChanged()"></select>
     </div>
     <h1>Button Mappings</h1>
+    <div class="center" id="controller"></div>
     <div id="buttonMappings">
+        <div id="applicationMappings">
+            <h2>This Application's Mappings (in progress)</h2>
+            <div class="space"><b>Move to Left Tab:</b>
+                <input class="controllerInput" type="text" id="tabLeft" name="tabLeft" value="" readonly >
+                <button class="clearButton" onmouseup="driver.clear('tabLeft')">Clear</button>
+            </div>
+            <div class="space"><b>Move to Right Tab:</b>
+                <input class="controllerInput" type="text" id="tabRight" name="tabRight" value="" readonly>
+                <button class="clearButton" onmouseup="driver.clear('tabRight')">Clear</button>
+            </div>
+        </div>
+        <div id="cameraMappings"></div>
     
         
     </div>
@@ -30,8 +43,12 @@
         <input id='remember' type="checkbox">
     </div>
     <div>
-        <button onmousedown="save()">Apply</button>
+        <button class="applyButton" onmousedown="driver.save()">Apply</button>
     </div>
+    <script>
+        const Driver = require('./driver.js')
+        var driver = new Driver();
+    </script>
     <script src="./settings.js"></script>
 </body>
 

@@ -1,6 +1,6 @@
 function setup(cameraAdapter) {
     var gp = null;
-    var controllerDriver = null;
+    var controllerDriver = undefined;
     var httpBody = new XMLHttpRequest();
     httpBody.onreadystatechange = () => {
         if (httpBody.readyState == 4) {
@@ -25,6 +25,7 @@ function setup(cameraAdapter) {
             controllerDriver.update(gp);
         }, 130);
     });
+
 }
 
 
