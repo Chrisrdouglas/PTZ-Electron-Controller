@@ -1,28 +1,40 @@
+const fs = require('fs');
 module.exports = class Driver {
     /**
-     * This will keep track of the settings for each camera
+     * Object that handles loading, starting, stopping of controllers as well as
+     * loading configuration settings from ./configure.json. 
      */
     constructor() {
         try { this.config = require('../../configure.json'); }
         catch (e) { console.log('configuration.json not found'); }
         this.controllerDriver = null;
         this.subscribed = true;
-        this.trackedSettings = [];
         this.cameraFunctions = null;
 
-        //save important references
+        ///////////save important references///////////////
+        //do this so that we dont have to search every time we want something
+
+        //the targeted setting that will be updated on a controller action
         this.selectedID = document.getElementById('leftTab');
+        //the input box that holds the camera's address
         this.cameraIP = document.getElementById('cameraIP');
+        //the reference to the camera type drop down menu
         this.cameraType = document.getElementById('cameraType');
+        //the reference to the controller drop down menu
         this.controllerName = document.getElementById('controllerName');
+        //reference to the remember me box (functionality not yet implemented)
         this.remember = document.getElementById('remember')
-        this.applicationMappings = document.getElementById('applicationMappings');
+        //reference to where the camera's function's will be listed
         this.cameraMappings = document.getElementById('cameraMappings');
+        //reference to the application's mappings. not yet important
+        //this.applicationMappings = document.getElementById('applicationMappings');
         this.tabLeft = document.getElementById('tabLeft');
         this.tabRight = document.getElementById('tabRight');
+
+        
     }
 
-    deviceChanged() {
+    deviceChanged(changedObject) {
         var newInnerHTML = "<h2>Camera Mappings</h2>";
 
         //get camera and controller. make sure neither are null
@@ -31,6 +43,16 @@ module.exports = class Driver {
         if (!controllerName || controllerName == "Select" || !cameraType || cameraType == "Select") {
             return;
         }
+
+        //if controller changed
+        if (changedObject == 'controller'){
+            //stop old controller
+            if (this.controllerDriver) {this.controllerDriver.stopController();}
+            //start new controller
+            var { setup } = require('../../controllers/' + controllerName + '/setup');
+            setup(this);
+        }
+
 
 
         //get controller's application settings from config.json
@@ -42,41 +64,16 @@ module.exports = class Driver {
             this.tabLeft.value = this.config.controllers[controllerName]['Application'].tabLeft;
             this.tabRight.value = this.config.controllers[controllerName]['Application'].tabRight;
         }
-        catch (e) { console.log("no defaults for this") }
+        catch (e) { console.log("no application controls") }
 
         //get camera's function list from /cameras/CAMERANAME/cameraProperties
         this.cameraFunctions = require('../../cameras/' + cameraType + '/CameraProperties.json');
-        console.log(this.cameraFunctions)
 
         //for each function in in cameraproperties, make a new line with "Function: TEXTAREA"
         //if config.controller.camera.function has a mapping then set textarea to that mapping
-        /*    "Trigger": [
-        "zoomIn",
-        "zoomOut",
-        "focusIn",
-        "focusOut",
-        "panLeft",
-        "panRight",
-        "tiltUp",
-        "tiltDown"
-        ],
-        "Joystick": [
-        "Pan+Tilt"
-        ],
-        "PartialStick": [
-        "Zoom",
-        "Focus",
-        "Pan",
-        "Tilt"
-        ],
-        "Button": [
-        "autoFocus",
-        "Load Preset (in progress)",
-        "Save Preset (in progress)"
-        ], */
 
         var first = '<div class="space"><b>{FUNCTIONNAME} ({TYPE})</b>'
-        var second = '<input class="controllerInput" type="text" id="{FUNCTIONNAME}" name="tabRight" value="" onmousedown="driver.selected(id)" readonly><button class="clearButton" onmouseup="driver.clear({FUNCTIONNAME})">Clear</button></div>';
+        var second = '<input class="controllerInput" type="text" id="{FUNCTIONNAME}" name="tabRight" value="{VALUE}" onmousedown="driver.selected(id)" readonly><button class="clearButton" onmouseup="driver.clear({FUNCTIONNAME})">Clear</button></div>';
 
 
         //var functions = this.cameraFunctions.keys();
@@ -84,7 +81,11 @@ module.exports = class Driver {
             //var functName = key;
             var inputType = this.cameraFunctions[key].inputType;
             newInnerHTML += first.replace('{FUNCTIONNAME}', key).replace('{TYPE}', inputType);
-            newInnerHTML += second.replaceAll('{FUNCTIONNAME}', key);
+            var buttonSettings = '';
+            if (this.config.controllers[controllerName][cameraType][key]) {
+                buttonSettings = this.config.controllers[controllerName][cameraType][key];
+            }
+            newInnerHTML += second.replaceAll('{FUNCTIONNAME}', key).replace('{VALUE}', buttonSettings);
         }
 
         //replace cameraMappings.innerHTML with the string generated by this function.
@@ -101,12 +102,23 @@ module.exports = class Driver {
     }
 
 
+
     setController(controller) {
         this.controllerDriver = controller;
     }
 
+    checkIfUsed(commandString){
+        for (var i in this.cameraFunctions){
+            var doc = document.getElementById(i);
+            if(doc.value == commandString){
+                return true;
+            }
+        }
+        return false;
+    }
+
     updateControllerState(controllerState) {
-        console.log(controllerState)
+        //console.log(controllerState)
         //this.selectedID is the name of the function that we're trying to set values for
         if (!this.selectedID) {
             return;
@@ -130,7 +142,6 @@ module.exports = class Driver {
         var command = '';
         //get selectedID's input type
         //input type will be in this.cameraFunctions[FUNCTION].inputType
-        console.log(this.selectedID.id)
         var inputType = this.cameraFunctions[this.selectedID.id].inputType
 
         if (inputType == 'Button') {
@@ -145,9 +156,12 @@ module.exports = class Driver {
             if (command == '') {
                 return;
             }
-            else { //set command and terminate early
+            else if (this.checkIfUsed(command)) { // check if command is usedset command and terminate early
                 this.selectedID.value = command;
                 return;
+            }
+            else{
+                return
             }
         }
         else {
@@ -217,35 +231,68 @@ module.exports = class Driver {
                         break;
                     }
                 }
-                this.selectedID.value = command;
+                if(!this.checkIfUsed(command)) {this.selectedID.value = command;}
+                
             }
         }
     }
 
-    clear() {
-        this.selectedID.value = '';
+    clear(id) {
+        id.value = '';
     }
 
-    saveConfig() {
+    save() {
+        //reload config so that we dont erase any previously saved settings
         this.reloadConfig();
-        this.config.cameraIP = this.cameraIP.value;
-        this.config.controllerName = this.controllerName.value;
-        var newConfiguration = {};
-        var controllerName = this.controllerName.value;
-        var cameraType = this.cameraType.value;
-
-        if (!controllerName || controllerName == 'Select' || !cameraType || cameraType == 'Select') {
-            return;
+        /*if (!controllerName || controllerName == 'Select' || !cameraType || cameraType == 'Select') {
+            return false;
+        }*/
+        if (this.cameraIP.value.length == 0) {
+            alert("Insert Address of Camera");
+            return false;
+        }
+        if (docCameraType.value == "Select") {
+            alert("Select a supported camera");
+            return false;
+        }
+        if (docControllers.value == "Select") {
+            alert("Select a supported controller")
+            return false;
         }
 
-        //        var appMappings = {tabLeft : document.getElementById('tabLeft').value,
-        //tabRight : document.getElementById('tabRight').value};
+        this.config.cameraIP = this.cameraIP.value;
+        this.config.controllerName = this.controllerName.value;
+        this.config.cameraType = this.cameraType.value;
+
+
+        /*update app mappings here
+        for(var key in this.applicationFunctions){
+            var functionValue = document.getElementById(key).value;
+            if(functionValue != '')
+            {this.config.controllers[this.config.controllerName]['Application'][key] = functionValue}
+        }*/
+
+
+        //update camera mappings here
+        for(var key in this.cameraFunctions){
+            var functionValue = document.getElementById(key).value;
+            if(functionValue != '')
+            {this.config.controllers[this.config.controllerName][this.config.cameraType][key] = functionValue}
+        }
 
         //this.config[controllerName].Application = appMappings
 
-        this.config.controllers[controllerName][cameraType] = newConfiguration;
 
         //JSON.stringify(this.config)
+
+        //write
+        try { fs.writeFileSync('./configure.json', JSON.stringify(this.config), 'utf-8'); }
+        catch (e) {
+            console.log(e);
+            return false;
+        }
+
+        return true;
     }
 
     getSubscribed() {

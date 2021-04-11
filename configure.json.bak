@@ -2,5 +2,12 @@
     "cameraIP": "192.168.86.228",
     "cameraType": "AW-HN40",
     "controllerName": "XBoxOne",
-    "remember": false
+    "remember": false,
+    "controllers":{
+        "XBoxOne":{
+            "AW-HN40":{
+                "zoomIn": "LT"
+            }
+        }
+    }
 }

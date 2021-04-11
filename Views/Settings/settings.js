@@ -15,36 +15,16 @@ function save() {
 
     // leaving this as a text box to give people the ability to input a domain name.
     // someone could insert a json string and have it saved to the configuration file
-    if (docCameraIP.value.length == 0) {
-        alert("Insert Address of Camera");
-        return;
-    }
-    if (docCameraType.value == "Select") {
-        alert("Select a supported camera");
-        return;
-    }
-    if (docControllers.value == "Select") {
-        alert("Select a supported controller")
-        return;
-    }
 
-    //make json object
-    var config = {
-        cameraIP: docCameraIP.value,
-        cameraType: docCameraType.value,
-        controllerName: docControllers.value,
-        remember: docRemember.checked
-    }
 
-    //write
-    try { fs.writeFileSync('./configure.json', JSON.stringify(config), 'utf-8'); }
-    catch (e) {
-        console.log(e);
-        return;
-    }
 
-    var window = remote.getCurrentWindow();
-    window.close();
+    driver.save();
+    //if(driver.save()){
+    //    var window = remote.getCurrentWindow();
+    //    window.close();
+    //}
+
+    
 
 }
 
@@ -64,62 +44,6 @@ function populateSelect(id, path) {
     select.innerHTML = newInnerHTML;
 }
 
-
-function populateButtonSettings(driver) {
-    console.log(driver.getSubscribed())
-    var controllerName = document.getElementById('controllerName').value;
-    var cameraType = document.getElementById('cameraType').value;
-    if (!controllerName || controllerName == "Select" || !cameraType || cameraType == "Select") {
-        return;
-    }
-
-    buttonMappings = document.getElementById('buttonMappings');
-    var {setup} = require('../../controllers/' + controllerName + '/setup.js');
-    setup(driver)
-
-    
-}
-
-function splitStick(id) {
-    var doc = document.getElementById(id);
-    var docX = document.getElementById(id + '-X');
-    var docY = document.getElementById(id + '-Y');
-    var cameraType = document.getElementById('cameraType').value;
-
-    try { var mappable = require('../../cameras/' + cameraType + '/CameraProperties.json'); }
-    catch (e) {
-        console.log('Camera properties file not found for camera');
-        return;
-    }
-
-    if (doc.value == 'Split X+Y Function') {
-        //generate docX
-        var open = '<div class="space"><b>Stick X Function:</b>\n<select name="Stick-X-Function" id="Stick-X-Function">\n<option value="Select" selected disabled hidden>Select</option>\n';
-        var option = '<option value="{OPTION}">{OPTION}</option>\n'
-        var close = '</select></div>'
-        for (var i = 0; i < mappable.PartialStick.length; i++) {
-            open += option.replaceAll('{OPTION}', mappable.PartialStick[i]);
-        }
-        open += close;
-        docX.innerHTML = open
-
-        //generate docY
-        open = '<div class="space"><b>Stick Y Function:</b>\n<select name="Stick-Y-Function" id="Stick-Y-Function">\n<option value="Select" selected disabled hidden>Select</option>\n'
-        for (var i = 0; i < mappable.PartialStick.length; i++) {
-            open += option.replaceAll('{OPTION}', mappable.PartialStick[i]);
-        }
-        open += close;
-        docY.innerHTML = open
-
-
-
-    }
-    else {
-        docX.innerHTML = '';
-        docY.innerHTML = '';
-    }
-}
-
 /**
  * Takes a path and produces a list of directory names in that path
  * @param {string} path a string to a path on the file system
@@ -135,7 +59,10 @@ function getDirectories(path) {
 /**
  * Loads the most recently used settings
  */
-function load() {
+function load(driver) {
+    populateSelect('cameraType', './cameras/');
+    populateSelect('controllerName', './controllers/');
+
     var configLoaded = true;
     try { var configFile = require('../../configure.json'); }
     catch (e) {
@@ -152,8 +79,7 @@ function load() {
     var controllerName = document.getElementById('controllerName');
     var cameraType = document.getElementById('cameraType');
 
-    populateSelect('cameraType', './cameras/');
-    populateSelect('controllerName', './controllers/');
+
 
 
     if (configLoaded) {
@@ -161,29 +87,9 @@ function load() {
         cameraType.value = configFile.cameraType;
         controllerName.value = configFile.controllerName;
 
-        //populate+load button mappings
-        populateButtonSettings(driver);
-        var controller = configFile[configFile.controllerName][configFile.cameraType];
-
-        try { var mappable = require('../../cameras/' + configFile.cameraType + '/CameraProperties.json'); }
-        catch (e) {
-            console.log('Camera properties file not found for camera');
-            controller = undefined;
-        }
-
-        try { var mappingsFile = require('../../controllers/' + controllerName + '/mappings.json'); }
-        catch (e) {
-            console.log('Mappings file not found for controller');
-            controller = undefined;
-        }
-
-
-
-        if (controller){
-
-            
-        }
-
+        // after the basic configuration data is loaded we want to load the
+        // controller image and button mappings if they're present
+        driver.deviceChanged('controller');
     }
     else {
         cameraType.value = "Select";
@@ -196,4 +102,5 @@ function load() {
 
 
 }
-load();
+
+load(driver);

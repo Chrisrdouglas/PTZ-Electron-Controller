@@ -24,6 +24,7 @@ module.exports = class Driver {
         
         //cameraDriver
         this.cameraDriver = cameraDriver;
+        this.interval = null
         try { this.cameraDriver.setController(this) }
         catch (e) { console.log('This Camera Driver does not have a setController function') }
         
@@ -42,6 +43,14 @@ module.exports = class Driver {
         //raw controller data
         this.rawData = null;
         this.cameraState = null;
+    }
+
+    setControllerListener(intervalListener){
+        this.interval = intervalListener;
+    }
+
+    stopController(){
+        clearInterval(this.interval);
     }
 
     /**

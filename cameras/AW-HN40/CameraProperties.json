@@ -12,7 +12,7 @@
     "tiltUp": {"inputType": "Trigger"},
     "tiltDown": {"inputType": "Trigger"},
     "tilt" : {"inputType": "PartialJoystick"},
-    "Pan+Tilt": {"inputType": "Joystick"},
+    "Pan_And_Tilt": {"inputType": "Joystick"},
     "autoFocus":{"inputType": "Button"},
     "power":{"inputType": "Button"}
 
