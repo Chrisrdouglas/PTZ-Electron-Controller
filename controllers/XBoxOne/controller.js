@@ -28,9 +28,9 @@ module.exports = class Driver {
         try { this.cameraDriver.setController(this) }
         catch (e) { console.log('This Camera Driver does not have a setController function') }
         
-        //controller configuration
-        //try { this.config = require('./controllerConfig'); }
-        //catch (e) { this.config = null; }
+        // global configuration file
+        try { this.config = require('../../configure.json'); }
+        catch (e) { this.config = null; }
         
         //maps the button indexes from gamepad to the button names
         try { this.mappings = require('./mappings.json') }
@@ -163,6 +163,15 @@ module.exports = class Driver {
             Triggers:Triggers
         }
 
+        try{
+            if (this.cameraDriver.getSubscribed()){
+                this.cameraDriver.updateControllerState(this.controllerState);
+            }
+        }
+        catch (e) {
+            console.log(e)
+        }
+
         //process commands attached to buttons
         this.processCommands();
     }
@@ -173,7 +182,7 @@ module.exports = class Driver {
      */
     updateConfig() {
         try {
-            this.config = require('./controllerConfig');
+            this.config = require('../../configure.json');
             this.updateActivationFunction();
         }
         catch (e) { this.config = null; }
@@ -196,15 +205,6 @@ module.exports = class Driver {
      * @param {gamepad} gp gamepad object that is given to us every 130 ms
      */
     processCommands(gp) {
-        try{
-            if (this.cameraDriver.getSubscribed()){
-                this.cameraDriver.updateControllerState(this.controllerState);
-            }
-        }
-        catch (e) {
-            console.log(e)
-        }
-
     }
 
 
