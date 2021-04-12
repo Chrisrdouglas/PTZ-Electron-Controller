@@ -6,6 +6,7 @@ module.exports = class Adapter{
     constructor(config){
         const Driver = require('./driver.js');
         this.cameraDriver = new Driver(config);
+        this.activationFunction
 
     }
 
@@ -68,12 +69,28 @@ module.exports = class Adapter{
 
     /**
      * executes commands on the camera by doing a lookup of the button's associated command and executing it on the camera driver
-     * @param {string} buttonName
-     * @param {object[]} value 
+     * @param {string} command string with the name of command that needs to be executed
+     * @param {object[]} value
      */
-    executeCommand(buttonName, value){
-
+    executeCommand(command, value){
     }
+
+    /**
+    * Uses the Math.floor function. Increasing the step size increases the sensitivity.
+    * A shift of .5 is recommended.
+    * @param {float} x 
+    * @param {object} functionParams function paramaters defined in ./configure.json
+    * @param {int} functionParams.numSteps Step size. Defaults to 100
+    * @param {float} functionParams.shift shifts function to the left or right. For example: +5 will shift function to the left. Defaults to 0.
+    * @returns floor(x*steps + shift)/steps
+    */
+        step(x, functionParams){
+            var numSteps = 100;
+            var shift = 0;
+            if (functionParams.numSteps){ numSteps = functionParams.numSteps;}
+            if (functionParams.shift){ shift = functionParams.shift;}
+            return Math.floor(x*numSteps+shift)/numSteps;
+        }
 
     /**
      * Required setup function that initializes the app's video feed, and starts

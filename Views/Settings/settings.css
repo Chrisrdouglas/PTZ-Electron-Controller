@@ -4,10 +4,19 @@ h1 {text-align: center;}
 
 select {right: 0; position: absolute; }
 
-input {right: 0; position: absolute;}
+.normalInput {right: 0; position: absolute;}
+
+.controllerInput {right: 50px; position: absolute;}
+
+.clearButton {right: 0; position: absolute;}
 
 #remember {left: 0; position: relative;}
 
 .space {margin-top: .5em;}
 
-button {margin-top: .5 em; padding: 10px}
+.applyButton {margin-top: .5 em; padding: 10px}
+
+.center {  display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 40%;}
