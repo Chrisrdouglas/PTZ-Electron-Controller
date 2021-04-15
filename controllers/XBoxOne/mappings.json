@@ -21,15 +21,17 @@
     "Joysticks":[
         {
             "label": "Left Joystick",
-            "xMinMax": [-1,1],
-            "yMinMax": [-1,1],
-            "invertY": true
+            "ranges": [[-1,1], [-1,1]],
+            "deadzone": [0.1, 0.1],
+            "axes": [0,1],
+            "inverts": [false, true]
         },
         {
             "label": "Right Joystick",
-            "xMinMax": [-1,1],
-            "yMinMax": [-1,1],
-            "invertY": true
+            "ranges": [[-1,1], [-1,1]],
+            "deadzone": [0.1, 0.1],
+            "axes": [2,3],
+            "inverts": [false, true]
         }
     ],
 

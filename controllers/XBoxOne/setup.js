@@ -18,7 +18,7 @@ function setup(cameraAdapter) {
         }
         //if gp is null then do nothing otherwise give updated gp info to controller driver
         if(gp) {controllerDriver.update(gp);}
-    }, 130);
+    }, 10);
 
 
     var httpBody = new XMLHttpRequest();
@@ -26,7 +26,7 @@ function setup(cameraAdapter) {
         if (httpBody.readyState == 4) {
             if (httpBody.status == 200) {
                 document.getElementById('controller').innerHTML = httpBody.responseText;
-                const Driver = require('./controller.js');
+                const Driver = require('./controllerDriver.js');
                 controllerDriver = new Driver(cameraAdapter);
                 controllerDriver.setControllerListener(gpInterval);
             }

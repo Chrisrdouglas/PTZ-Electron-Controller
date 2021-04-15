@@ -1,3 +1,4 @@
+const Controller = require("./controller/Controller");
 module.exports = class Driver {
 
     constructor(cameraDriver) {
@@ -21,6 +22,7 @@ module.exports = class Driver {
         ];
         this.sticks = [document.getElementById('leftStick'),
         document.getElementById('rightStick')];
+
         
         //cameraDriver
         this.cameraDriver = cameraDriver;
@@ -41,8 +43,7 @@ module.exports = class Driver {
         this.rightStickCoords = [304, 173];
 
         //raw controller data
-        this.rawData = null;
-        this.cameraState = null;
+        this.controller = new Controller(this.mappings);
     }
 
     setControllerListener(intervalListener){
@@ -58,7 +59,7 @@ module.exports = class Driver {
      * @param {gamepad} gp state of the controller
      */
     update(gp) {
-        this.rawData = gp;
+        this.controller.update(gp);
         var Buttons = [];
         var Joysticks = []
         var Triggers = []
@@ -154,23 +155,6 @@ module.exports = class Driver {
 
         Joysticks.push(leftStick)
         Joysticks.push(rightStick)
-        
-        
-        
-        this.controllerState = {
-            Buttons:Buttons,
-            Joysticks:Joysticks,
-            Triggers:Triggers
-        }
-
-        try{
-            if (this.cameraDriver.getSubscribed()){
-                this.cameraDriver.updateControllerState(this.controllerState);
-            }
-        }
-        catch (e) {
-            console.log(e)
-        }
 
         //process commands attached to buttons
         this.processCommands();
@@ -205,6 +189,8 @@ module.exports = class Driver {
      * @param {gamepad} gp gamepad object that is given to us every 130 ms
      */
     processCommands(gp) {
+
+        //https://www.gamedev.net/blogs/entry/2250186-designing-a-robust-input-handling-system-for-games/
     }
 
 
