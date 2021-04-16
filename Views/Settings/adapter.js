@@ -1,5 +1,5 @@
 const fs = require('fs');
-module.exports = class Driver {
+module.exports = class Adapter {
     /**
      * Object that handles loading, starting, stopping of controllers as well as
      * loading configuration settings from ./configure.json. 
@@ -12,7 +12,7 @@ module.exports = class Driver {
         this.cameraFunctions = null;
 
         ///////////save important references///////////////
-        //do this so that we dont have to search every time we want something
+        //do this so that we dont have to search every time we want something.... does this make it any faster???? what is the speed of the getElementsById method???
 
         //the targeted setting that will be updated on a controller action
         this.selectedID = document.getElementById('leftTab');
@@ -30,8 +30,11 @@ module.exports = class Driver {
         //this.applicationMappings = document.getElementById('applicationMappings');
         this.tabLeft = document.getElementById('tabLeft');
         this.tabRight = document.getElementById('tabRight');
+    }
 
-        
+    getCameraName(){
+        return this.cameraType.value;
+
     }
 
     deviceChanged(changedObject) {
@@ -73,7 +76,7 @@ module.exports = class Driver {
         //if config.controller.camera.function has a mapping then set textarea to that mapping
 
         var first = '<div class="space"><b>{FUNCTIONNAME} ({TYPE})</b>'
-        var second = '<input class="controllerInput" type="text" id="{FUNCTIONNAME}" name="tabRight" value="{VALUE}" onmousedown="driver.selected(id)" readonly><button class="clearButton" onmouseup="driver.clear({FUNCTIONNAME})">Clear</button></div>';
+        var second = '<input class="controllerInput" type="text" id="{FUNCTIONNAME}" name="tabRight" value="{VALUE}" onmousedown="adapter.selected(id)" readonly><button class="clearButton" onmouseup="adapter.clear({FUNCTIONNAME})">Clear</button></div>';
 
 
         //var functions = this.cameraFunctions.keys();
@@ -108,9 +111,12 @@ module.exports = class Driver {
     }
 
     checkIfUsed(commandString){
+        //need to remove any kind of axis because we can have a thing mapped to a single axis on a joystick
+        // and then still have that entire joystick mapped to another function
+        var commandStringAxisFilter = commandString.replaceAll(',X', '').replaceAll(',Y', '');
         for (var i in this.cameraFunctions){
             var doc = document.getElementById(i);
-            if(doc.value == commandString){
+            if(doc.value == commandString || doc.value == commandStringAxisFilter){
                 return true;
             }
         }
@@ -123,117 +129,13 @@ module.exports = class Driver {
         if (!this.selectedID) {
             return;
         }
-
-        // if there's nothing interesting about the controller then terminate early so that we dont override something
-
-        if (controllerState.Buttons.length == 0 && controllerState.Triggers.length == 0) {
-            var countActive = 0;
-            for (var i in controllerState.Joysticks) {
-                if (controllerState.Joysticks[i].xActive || controllerState.Joysticks[i].yActive) {
-                    countActive++;
-                }
-
-            }
-            if (countActive == 0) { //nothing here. terminate early
-                return;
-            }
-        }
-
-        var command = '';
-        //get selectedID's input type
-        //input type will be in this.cameraFunctions[FUNCTION].inputType
-        var inputType = this.cameraFunctions[this.selectedID.id].inputType
-
-        if (inputType == 'Button') {
-            //itterate over all the buttons.
-            for (var button in controllerState.Buttons) {
-                if (controllerState.Buttons[button].pressed) {
-                    command += controllerState.Buttons[button].label;
-                    break;
-                }
-            }
-            //if no button was pressed then no need to update the value
-            if (command == '') {
-                return;
-            }
-            else if (this.checkIfUsed(command)) { // check if command is usedset command and terminate early
-                this.selectedID.value = command;
-                return;
-            }
-            else{
-                return
-            }
-        }
-        else {
-
-            if (inputType == 'Trigger') { // check if it's a trigger type first because functions that can be mapped with them
-                for (var k in controllerState.Triggers) {
-                    if (controllerState.Triggers[k].pressed) {
-                        command += controllerState.Triggers[k].label
-                        break;
-                    }
-                }
-            }
-            else if (inputType == 'PartialJoystick') {
-                var maxJoystickValue = 0.0;
-                var joystickName = null;
-                for (var i in controllerState.Joysticks) {
-                    //Look for the joystick that has the highest value for its X or Y component
-                    //we want to take the absolute value because that allows for controllers that
-                    //use the [0,1] range style as well as the [0,255] style
-
-                    //we're appending a .X or .Y to the joystick name to keep track of what axis
-                    //will be used
-                    if (Math.abs(controllerState.Joysticks[i].X) > maxJoystickValue) {
-                        joystickName = controllerState.Joysticks[i].label + '.X';
-                        maxJoystickValue = Math.abs(controllerState.Joysticks[i].X);
-                    }
-                    if (Math.abs(controllerState.Joysticks[i].Y) > maxJoystickValue) {
-                        joystickName = controllerState.Joysticks[i].label + '.Y';
-                        maxJoystickValue = Math.abs(controllerState.Joysticks[i].Y);
-                    }
-                }
-                if (joystickName) {
-                    command += joystickName;
-                }
-
-            }
-            else if (inputType == 'Joystick') {
-                //use the same method as Partial Joystick except that we dont append a ".X" or ".Y"
-                var maxJoystickValue = 0.0;
-                var joystickName = null;
-                for (var i in controllerState.Joysticks) {
-                    if (Math.abs(controllerState.Joysticks[i].X) > maxJoystickValue) {
-                        joystickName = controllerState.Joysticks[i].label;
-                        maxJoystickValue = Math.abs(controllerState.Joysticks[i].X);
-                    }
-                    if (Math.abs(controllerState.Joysticks[i].Y) > maxJoystickValue) {
-                        joystickName = controllerState.Joysticks[i].label;
-                        maxJoystickValue = Math.abs(controllerState.Joysticks[i].Y);
-                    }
-                }
-                if (joystickName) {
-                    command += joystickName;
-                }
-
-
-            }
-            else { // There is something wrong with the CameraProperties.json
-                console.log(inputType + ' is not a valid controller input option');
-                return;
-            }
-
-            //aaaanddd now we check if there is a button so long as command is not ''
-            if (command != '') {
-                for (var button in controllerState.Buttons) {
-                    if (controllerState.Buttons[button].pressed) {
-                        command += ' + ' + controllerState.Buttons[button].label;
-                        break;
-                    }
-                }
-                if(!this.checkIfUsed(command)) {this.selectedID.value = command;}
-                
-            }
+        console.log(this.cameraFunctions)
+        var functString = this.cameraFunctions[this.selectedID.id].inputPattern;
+        var commandString = controllerState.lookupMaxState(functString);
+        console.log(functString)
+        if(this.selectedID.value != functString && !this.checkIfUsed(commandString)){
+            console.log(commandString)
+            this.selectedID.value = commandString;
         }
     }
 

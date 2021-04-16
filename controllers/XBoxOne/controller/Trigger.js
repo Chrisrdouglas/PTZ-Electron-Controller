@@ -6,6 +6,7 @@ module.exports = class Button{
         this.state = 0; // 0 for off, 1 for held. being pressed makes it fire a callback
         this.lastDownTime = Date.now();
         this.lastUpTime = Date.now();
+        this.lastHoldReleaseTime = Date.now();
 
         this.onDownCallback = []; //fires anytime the button goes from 0 to not 1
         this.onUpCallback = []; //fires anytime the button value goes from not 1 to 0
@@ -14,9 +15,13 @@ module.exports = class Button{
         this.onHoldReleaseCallback = [];
 
         this.holdWatch = null;
-        this.type = "Button";
+        this.type = "Trigger";
         this.PRESSCONDITION = 500; //time in ms that a button needs to be lifted for it to be considered pressed
         // in adition to that, it's the time in ms that the difference between the down time and up time that says if a button is being held
+    }
+
+    getLabel(){
+        return this.label;
     }
 
     /**
@@ -25,23 +30,6 @@ module.exports = class Button{
      */
     getState(){
         return this.state;
-    }
-
-    getLabel(){
-        return this.label;
-    }
-
-/**
- * Let this button know if it's actually a trigger. Might need to make a seperate trigger class later.
- * @param {boolean} i indicator determining if this button is actually a trigger
- */
-    setTrigger(i){
-        if(i){
-            this.type = "Trigger";
-        }
-        else{
-            this.type = "Button";
-        }
     }
 
     /**
@@ -88,6 +76,7 @@ module.exports = class Button{
     }
 
     fireHoldReleaseCallback(){
+        this.lastHoldReleaseTime = Date.now();
         if(this.onHoldReleaseCallback.length > 0 && this.onHoldReleaseCallback[0])
         {
             this.onHoldReleaseCallback[0](this);
@@ -138,14 +127,13 @@ module.exports = class Button{
      * @param {float} value The value of the button or trigger being pressed
      */
     update(value){
-        if(this.value == 0 && value == 1){
+        if(this.value == 0 && value > 0){
             //going from unpressed to pressed
             this.fireOnDownCallback();
         }
-        else if (this.value == 1 && value == 0){
+        else if (this.value > 0 && value == 0){
             this.fireOnUpCallback();
         }
-
         if (this.value != value){
             this.value = value;
             if (value == 0){
@@ -161,7 +149,7 @@ module.exports = class Button{
                 }
                 this.lastUpTime = Date.now();
                 var deltaT = this.lastUpTime - this.lastDownTime
-                if(deltaT < this.PRESSCONDITION ){ //if pressed for less than 160 ms < this.PRESSCONDITION
+                if(deltaT < this.PRESSCONDITION && (Date.now() - this.lastHoldReleaseTime) > 15){
                     this.firePressCallback();
                 }
             }

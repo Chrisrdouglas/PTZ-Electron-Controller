@@ -31,14 +31,14 @@ module.exports = class JoystickAxis {
     getValue() {
         //need to normalize the value between -1 and 1
         //then see if that is beyond the tollerance stored in deadzone
-        if (Math.abs(this.getNormalizedValue(-1, 1)) > deadzone) {
+        if (Math.abs(this.getNormalizedValue(-1, 1)) > this.deadzone) {
             return this.invert * this.value;
         }
         return 0.0;
     }
 
     getNormalizedValue(low, high) { //normalizes value between low and high
-        return this.invert * (high - low) * (this.value - range[0]) / (range[1] - range[0]) + low;
+        return this.invert * ((high - low) * (this.value - this.range[0]) / (this.range[1] - this.range[0]) + low);
     }
 
     setValue(value) {

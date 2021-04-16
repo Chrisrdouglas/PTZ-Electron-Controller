@@ -1,19 +1,30 @@
 module.exports = class Adapter{
 
     /**
-     * 
+     *
+     *
      */
     constructor(config){
         const Driver = require('./driver.js');
+        this.cameraName = "AW-HN40";
         this.cameraDriver = new Driver(config);
-        this.activationFunction
+        this.activationFunction = null;
+        this.controller = null;
 
+    }
+
+    /**
+     * 
+     * @returns String with this camera's name
+     */
+    getCameraName(){
+        return this.cameraName;
     }
 
     /**
      * function to give index.html the controls granted by this adapter
      */
-    getControls(){
+    setControls(){
         var cameraControls = document.getElementById('cameraControlls');
         cameraControls.innerHTML ='<button class="controlPannelButton PowerButton PowerButtonOff" id="powerButton" onclick="cameraAdapter.cameraPowerChange()" onmouseover="cameraAdapter.cameraPowerState()"><b>POWER</b></button>'
     }
@@ -84,13 +95,13 @@ module.exports = class Adapter{
     * @param {float} functionParams.shift shifts function to the left or right. For example: +5 will shift function to the left. Defaults to 0.
     * @returns floor(x*steps + shift)/steps
     */
-        step(x, functionParams){
-            var numSteps = 100;
-            var shift = 0;
-            if (functionParams.numSteps){ numSteps = functionParams.numSteps;}
-            if (functionParams.shift){ shift = functionParams.shift;}
-            return Math.floor(x*numSteps+shift)/numSteps;
-        }
+    step(x, functionParams){
+        var numSteps = 100;
+        var shift = 0;
+        if (functionParams.numSteps){ numSteps = functionParams.numSteps;}
+        if (functionParams.shift){ shift = functionParams.shift;}
+        return Math.floor(x*numSteps+shift)/numSteps;
+    }
 
     /**
      * Required setup function that initializes the app's video feed, and starts
@@ -98,11 +109,9 @@ module.exports = class Adapter{
      */
     setup(){
         //load up the controls that this adapter wants
-        this.getControls();
+        this.setControls();
         //start monitoring the power state
         setInterval(() => {this.cameraPowerState();}, 1000);
-        
-
     }
 
 };

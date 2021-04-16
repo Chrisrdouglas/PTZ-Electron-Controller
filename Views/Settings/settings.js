@@ -18,8 +18,8 @@ function save() {
 
 
 
-    driver.save();
-    //if(driver.save()){
+    adapter.save();
+    //if(adapter.save()){
     //    var window = remote.getCurrentWindow();
     //    window.close();
     //}
@@ -59,7 +59,7 @@ function getDirectories(path) {
 /**
  * Loads the most recently used settings
  */
-function load(driver) {
+function load(adapter) {
     populateSelect('cameraType', './cameras/');
     populateSelect('controllerName', './controllers/');
 
@@ -89,7 +89,7 @@ function load(driver) {
 
         // after the basic configuration data is loaded we want to load the
         // controller image and button mappings if they're present
-        driver.deviceChanged('controller');
+        adapter.deviceChanged('controller');
     }
     else {
         cameraType.value = "Select";
@@ -103,4 +103,4 @@ function load(driver) {
 
 }
 
-load(driver);
+load(adapter);

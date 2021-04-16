@@ -13,7 +13,6 @@ module.exports = class Joystick {
 
         //if no deadzone given then set it to 10% for both axes
         if (!deadzone) { deadzone = [.1, .1]; }
-        console.log(inverts)
         this.X = new JoystickAxis('X', deadzone[0], ranges[0], axes[0], inverts[0]);
         this.Y = new JoystickAxis('Y', deadzone[1], ranges[1], axes[1], inverts[1]);
         this.lastChangeTime = Date.now();
@@ -24,8 +23,12 @@ module.exports = class Joystick {
         this.activeYCallback;
     }
 
+    getLabel(){
+        return this.label;
+    }
+
     getValue() {
-        return [this.x.value(), this.Y.getValue()]
+        return [this.X.getValue(), this.Y.getValue()]
     }
 
     getValueNormalized() { //good for if you want to normalize your values between 0 and 1 or 0 and 255

@@ -1,4 +1,5 @@
 const Button = require('./Button');
+const Trigger = require('./Trigger');
 const Joystick = require('./Joystick')
 module.exports = class Controller {
 
@@ -45,46 +46,52 @@ module.exports = class Controller {
 
         var triggers = mappingsJson.Triggers;
         for (var i = 0; i < triggers.length; i++) {
-            var index = triggers[i].buttonIndex;
+            //var index = triggers[i].buttonIndex;
             var label = triggers[i].label;
 
             this.mapLabels[label].type = "Trigger";
-            this.buttons[this.mapLabels[label].index].setTrigger(true);
+            console.log(this.buttons)
+            this.buttons[this.mapLabels[label].index] = new Trigger(label);
             this.triggers.push(triggers[i].buttonIndex);
         }
+        //setInterval(()=>{console.log(this.buttons)}, 5000)
     }
 
     /**
      * takes a string representing what it wants to know about which triggers, joysticks, buttons are currently active and have highest values
      * @param {String} stateString 
-     * @return Returns a list with the corresponding Joystick elements that match the given pattern. If no match then null
+     * @return Returns a string with the corresponding Joystick elements that match the given pattern. If no match then empty string
      */
     lookupMaxState(stateString) {
-        //so we could try to use regular expressions to deal with this but it would be much easier to split things around the + and .
+        //so we could try to use regular expressions to deal with this but it would be much easier to split things around the + and ,
         var stateElements = stateString.split('+') // J,A+T+B => ['J,A', 'T', 'B']
+        var returnElements = []
         for (var i in stateElements) {
-            stateElements[i] = stateElements[element].trim(); // ['J,A', 'T', 'B'] => [['J','A'],['T'],['B']]
+            stateElements[i] = stateElements[i].trim(); // ['J,A', 'T', 'B'] => [['J','A'],['T'],['B']]
         }
+        stateElements.sort();
+        //console.log(stateElements)
+        
         // now that they've been broken down into their most basic elements try to see if we can find any meaning from it
 
-        var joystick = null;
-        var joystickAxis = null;
-        var triggers = null;
-        var buttons = null;
-        var pop = null;
+        var joystick = undefined;
+        var joystickAxis = undefined;
+        var triggers = undefined;
+        var buttons = undefined;
+        var pop = undefined;
 
         for (var i in stateElements) {
-            pop = null;
+            pop = undefined;
             if (stateElements[i] == 'J') {
                 if (!joystick){
                     joystick = this.findActiveJoysticks();
                 }
                 pop = joystick.shift();
                 if(pop){
-                    statElements[i] = pop;
+                    returnElements.push(pop[0]);
                 }
                 else{
-                    return null;
+                    return '';
                 }
             }
             else if (stateElements[i] == 'J,A') {
@@ -93,10 +100,10 @@ module.exports = class Controller {
                 }
                 pop = joystickAxis.shift();
                 if(pop){
-                    statElements[i] = pop;
+                    returnElements.push(pop[0]);
                 }
                 else{
-                    return null;
+                    return '';
                 }
             }
             else if (stateElements[i] == 'T') {
@@ -105,38 +112,46 @@ module.exports = class Controller {
                 }
                 pop = triggers.shift();
                 if(pop){
-                    statElements[i] = pop;
+                    returnElements.push(pop);
                 }
                 else{
-                    return null;
+                    return '';
                 }
             }
             else if (stateElements[i] == 'B'){
                 if (!buttons){
-                    buttonIndexes = this.findActiveButtons();
+                    buttons = this.findActiveButtons();
                 }
                 pop = buttons.shift();
                 if(pop){
-                    statElements[i] = pop;
+                    returnElements.push(pop[0]);
                 }
                 else{
-                    return null;
+                    return '';
                 }
 
             }
             else if (stateElements[i] == 'B?'){ //for when a button is optional
                 if (!buttons){
-                    buttonIndexes = this.findActiveButtons();
+                    buttons = this.findActiveButtons();
                 }
                 pop = buttons.shift();
                 if(pop){
-                    statElements[i] = pop;
+                    returnElements.push(pop[0]);
                 }
             }
-            else {return null;} //this case only ever runs if we get a state string with illegal characters
+            else {
+                return '';} //this case only ever runs if we get a state string with illegal characters
         }
 
-        return stateElements;
+        var returnString = '';
+        if (returnElements.length > 0) {
+            returnString = returnElements[0];
+            for (var i = 1; i < returnElements.length; i++){
+                returnString += ' + ' + returnElements[i];
+            }
+        };
+        return returnString;
     }
 
     /*getStateFromString(stateString){
@@ -188,6 +203,7 @@ module.exports = class Controller {
     findActiveJoystickAxis() {
         var max = 0.0;
         var sticks = [];
+
         for (var j in this.joysticks) {
             var axis = this.joysticks[j].getValue();
             if (Math.abs(axis[0])) { sticks.push([this.joysticks[j].getLabel() + ',X', Math.abs(axis[0])]); }
@@ -200,19 +216,19 @@ module.exports = class Controller {
     findActiveJoysticks() {
         var sticks = [];
         for (var j in this.joysticks) {
-            var val = Math.max(this.joysticks[j].getValue());
-            if (val > 0) { stick.push([this.joysticks[j].getLabel(), this.joysticks[j].getValue()]) }
+            var vals = this.joysticks[j].getValue()
+            var val = Math.max(vals[0], vals[1]);
+            if (val > 0) { sticks.push([this.joysticks[j].getLabel(), this.joysticks[j].getValue()]) }
         }
-
         return sticks.sort(this.comparator);// (x,y) => x[1] - y[1]
     }
 
-    findActiveTrigger() {
+    findActiveTriggers() {
         var triggers = [];
         for (var i in this.triggers) {
             var triggerButton = this.buttons[this.triggers[i]];
             //0 for off, 1 for held
-            if (triggerButton.getState()) {
+            if (triggerButton.getValue()) {
                 triggers.push(triggerButton.getLabel(), triggerButton.getHoldTime());
             }
         }
@@ -225,19 +241,20 @@ module.exports = class Controller {
         for (var i in this.buttons) {
             var bypass = false;
             for (var j in this.triggers) {
-                if (i == this.triggers[j].buttonIndex) {
+                //console.log(this.triggers)
+                if (i == this.triggers[j]) {
                     bypass = true;
                     break;
                 }
             }
-            if (bypass) {
-                continue;
+            if (!bypass) {
+                var button = this.buttons[i];
+                //0 for off, 1 for held
+                if (button.getValue()) {
+                    activeButtons.push([button.getLabel(), button.getHoldTime()]);
+                }
             }
-            var button = this.buttons[i];
-            //0 for off, 1 for held
-            if (this.button.getState()) {
-                activeButtons.push(button.getLabel(), button.getHoldTime());
-            }
+
         }
 
         return activeButtons.sort(this.comparator);
@@ -245,14 +262,12 @@ module.exports = class Controller {
 
 
     update(gamepad) {
-
         for(var i = 0; i < gamepad.buttons.length; i++){
-            this.buttons[i] = gamepad.buttons[i];
+            this.buttons[i].update(gamepad.buttons[i].value);
         }
+        //console.log(this.buttons)
         
         this.joysticks[0].update(gamepad.axes[0], gamepad.axes[1]);
         this.joysticks[1].update(gamepad.axes[2], gamepad.axes[3]);
-
-
     }
 }

@@ -1,6 +1,7 @@
 function setup(cameraAdapter) {
     //var gp = null;
     var controllerDriver = null;
+    console.log(cameraAdapter)
 
     var gpInterval = setInterval(() => {
         var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
@@ -17,8 +18,8 @@ function setup(cameraAdapter) {
             }
         }
         //if gp is null then do nothing otherwise give updated gp info to controller driver
-        if(gp) {controllerDriver.update(gp);}
-    }, 10);
+        if(gp && controllerDriver) {controllerDriver.update(gp);}
+    }, 130);
 
 
     var httpBody = new XMLHttpRequest();

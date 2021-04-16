@@ -1,19 +1,63 @@
 {
+    "zoomIn": {
+        "inputPattern": "T+B?",
+        "inputType": "Trigger"
+    },
+    "zoomOut": {
+        "inputPattern": "T+B?",
+        "inputType": "Trigger"
+    },
+    "zoom": {
+        "inputPattern": "J,A+B?",
+        "inputType": "Trigger"
+    },
+    "focusIn": {
+        "inputPattern": "T+B?",
+        "inputType": "Trigger"
+    },
+    "focusOut": {
+        "inputPattern": "T+B?",
+        "inputType": "Trigger"
+    },
+    "focus": {
+        "inputPattern": "J,A+B?",
+        "inputType": "Trigger"
+    },
+    "panLeft": {
+        "inputPattern": "T+B?",
+        "inputType": "Trigger"
+    },
+    "panRight": {
+        "inputPattern": "T+B?",
+        "inputType": "Trigger"
+    },
+    "pan": {
+        "inputPattern": "J,A+B?",
+        "inputType": "Joystick Axis"
+    },
+    "tiltUp": {
+        "inputPattern": "T+B?",
+        "inputType": "Trigger"
+    },
+    "tiltDown": {
+        "inputPattern": "T+B?",
+        "inputType": "Trigger"
+    },
+    "tilt": {
+        "inputPattern": "J,A+B?",
+        "inputType": "Joystick Axis"
 
-    "zoomIn": {"inputType": "Trigger"},
-    "zoomOut": {"inputType": "Trigger"},
-    "zoom": {"inputType": "PartialJoystick"},
-    "focusIn": {"inputType": "Trigger"},
-    "focusOut": {"inputType": "Trigger"},
-    "focus": {"inputType": "PartialJoystick"},
-    "panLeft": {"inputType": "Trigger"},
-    "panRight": {"inputType": "Trigger"},
-    "pan": {"inputType": "PartialJoystick"},
-    "tiltUp": {"inputType": "Trigger"},
-    "tiltDown": {"inputType": "Trigger"},
-    "tilt" : {"inputType": "PartialJoystick"},
-    "Pan_And_Tilt": {"inputType": "Joystick"},
-    "autoFocus":{"inputType": "Button"},
-    "power":{"inputType": "Button"}
-
+    },
+    "Pan_And_Tilt": {
+        "inputPattern": "J+B?",
+        "inputType": "Joystick"
+    },
+    "autoFocus": {
+        "inputPattern": "B",
+        "inputType": "Button"
+    },
+    "power": {
+        "inputPattern": "B",
+        "inputType": "Button"
+    }
 }
