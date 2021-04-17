@@ -8,8 +8,8 @@ module.exports = class Adapter {
         try { this.config = require('../../configure.json'); }
         catch (e) { console.log('configuration.json not found'); }
         this.controllerDriver = null;
-        this.subscribed = true;
         this.cameraFunctions = null;
+        this.controller = null;
 
         ///////////save important references///////////////
         //do this so that we dont have to search every time we want something.... does this make it any faster???? what is the speed of the getElementsById method???
@@ -34,7 +34,20 @@ module.exports = class Adapter {
 
     getCameraName(){
         return this.cameraType.value;
+    }
 
+    processCommands(){
+        if (!this.selectedID) {
+            return;
+        }
+        //console.log(this.cameraFunctions)
+        var functString = this.cameraFunctions[this.selectedID.id].inputPattern;
+        var commandString = this.controller.lookupMaxState(functString);
+        //console.log(functString)
+        if(this.selectedID.value != functString && !this.checkIfUsed(commandString)){
+            //console.log(commandString)
+            this.selectedID.value = commandString;
+        }
     }
 
     deviceChanged(changedObject) {
@@ -104,10 +117,12 @@ module.exports = class Adapter {
         catch (e) { console.log('configuration.json not found'); }
     }
 
-
+    setControllerDriver(controllerDriver) {
+        this.controllerDriver = controllerDriver;
+    }
 
     setController(controller) {
-        this.controllerDriver = controller;
+        this.controller = controller;
     }
 
     checkIfUsed(commandString){
@@ -123,25 +138,11 @@ module.exports = class Adapter {
         return false;
     }
 
-    updateControllerState(controllerState) {
-        //console.log(controllerState)
-        //this.selectedID is the name of the function that we're trying to set values for
-        if (!this.selectedID) {
-            return;
-        }
-        console.log(this.cameraFunctions)
-        var functString = this.cameraFunctions[this.selectedID.id].inputPattern;
-        var commandString = controllerState.lookupMaxState(functString);
-        console.log(functString)
-        if(this.selectedID.value != functString && !this.checkIfUsed(commandString)){
-            console.log(commandString)
-            this.selectedID.value = commandString;
-        }
-    }
 
     clear(id) {
         id.value = '';
     }
+    
 
     save() {
         //reload config so that we dont erase any previously saved settings
@@ -196,9 +197,4 @@ module.exports = class Adapter {
 
         return true;
     }
-
-    getSubscribed() {
-        return this.subscribed;
-    }
-
 }

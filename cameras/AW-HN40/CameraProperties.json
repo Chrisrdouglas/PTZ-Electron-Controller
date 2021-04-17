@@ -9,7 +9,7 @@
     },
     "zoom": {
         "inputPattern": "J,A+B?",
-        "inputType": "Trigger"
+        "inputType": "Joystick Axis"
     },
     "focusIn": {
         "inputPattern": "T+B?",

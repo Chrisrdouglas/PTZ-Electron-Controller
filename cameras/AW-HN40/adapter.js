@@ -10,7 +10,13 @@ module.exports = class Adapter{
         this.cameraDriver = new Driver(config);
         this.activationFunction = null;
         this.controller = null;
+        this.buttonCommands = config.controllers[config.controllerName][this.cameraName];
 
+    }
+
+
+    processCommands(){
+        console.log('processCommands')
     }
 
     /**
@@ -27,6 +33,16 @@ module.exports = class Adapter{
     setControls(){
         var cameraControls = document.getElementById('cameraControlls');
         cameraControls.innerHTML ='<button class="controlPannelButton PowerButton PowerButtonOff" id="powerButton" onclick="cameraAdapter.cameraPowerChange()" onmouseover="cameraAdapter.cameraPowerState()"><b>POWER</b></button>'
+    }
+
+    setController(controller){
+        this.controller = controller;
+
+        //setup buttons
+        for(var i = 0; i < this.buttonCommands.length; i++){
+            console.log(this.buttonCommands[i])
+        }
+
     }
 
     /**

@@ -50,7 +50,7 @@ module.exports = class Controller {
             var label = triggers[i].label;
 
             this.mapLabels[label].type = "Trigger";
-            console.log(this.buttons)
+            //console.log(this.buttons)
             this.buttons[this.mapLabels[label].index] = new Trigger(label);
             this.triggers.push(triggers[i].buttonIndex);
         }

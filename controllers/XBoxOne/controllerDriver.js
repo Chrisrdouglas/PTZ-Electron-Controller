@@ -26,8 +26,8 @@ module.exports = class Driver {
         
         //cameraDriver
         this.cameraAdapter = cameraAdapter;
-        try { this.cameraAdapter.setController(this) }
-        catch (e) { console.log('This Camera Driver does not have a setController function') }
+        try { this.cameraAdapter.setControllerDriver(this) }
+        catch (e) { console.log('This Camera Driver does not have a setControllerDriver function') }
         
         // global configuration file
         try { this.config = require('../../configure.json'); }
@@ -39,9 +39,9 @@ module.exports = class Driver {
         catch (e) { console.log('mappings.json is missing') }
 
         //
-        console.log(this.cameraAdapter)
-        console.log(this.config)
-        console.log(this.config.controllers[this.mappings.controllerName][this.cameraAdapter.getCameraName()])
+        //console.log(this.cameraAdapter)
+        //console.log(this.config)
+        //console.log(this.config.controllers[this.mappings.controllerName][this.cameraAdapter.getCameraName()])
         
         //x and y coords for where the centers of the joystick circles should be
         this.leftStickCoords = [122, 100];
@@ -49,6 +49,8 @@ module.exports = class Driver {
 
         //raw controller data
         this.controller = new Controller(this.mappings);
+
+        this.cameraAdapter.setController(this.controller);
     }
 
     setControllerListener(intervalListener){
@@ -110,14 +112,14 @@ module.exports = class Driver {
         this.sticks[1].setAttribute('cx', this.rightStickCoords[0] + 17 * gp.axes[2]);
         this.sticks[1].setAttribute('cy', this.rightStickCoords[1] + 17 * gp.axes[3]);
 
-        try{
+        /*try{
             if (this.cameraAdapter.getSubscribed()){
                 this.cameraAdapter.updateControllerState(this.controller);
             }
         }
         catch (e){
             console.log(e);
-        }
+        }*/
 
 
         //process commands attached to buttons
@@ -152,9 +154,10 @@ module.exports = class Driver {
      * controller deadzone and 
      * @param {gamepad} gp gamepad object that is given to us every 130 ms
      */
-    processCommands(gp) {
+    processCommands() {
 
         //https://www.gamedev.net/blogs/entry/2250186-designing-a-robust-input-handling-system-for-games/
+        this.cameraAdapter.processCommands();
     }
 
 
