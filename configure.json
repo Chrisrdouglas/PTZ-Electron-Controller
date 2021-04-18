@@ -1,1 +1,22 @@
-{"cameraIP":"192.168.86.228","cameraType":"AW-HN40","controllerName":"XBoxOne","remember":false,"controllers":{"XBoxOne":{"AW-HN40":{"zoomIn":"RT","zoomOut":"LT","Pan_And_Tilt":"Right Joystick","zoom":"A + Left Joystick,Y","autoFocus":"Menu Button"}},"TeensyNunchuck":{"AW-HN40":{"zoom":"Joystick.Y + Z"}}}}
+{
+    "cameraIP": "192.168.86.228",
+    "cameraType": "AW-HN40",
+    "controllerName": "XBoxOne",
+    "remember": false,
+    "controllers": {
+        "XBoxOne": {
+            "AW-HN40": {
+                "zoomIn": "RT",
+                "zoomOut": "LT",
+                "Pan_And_Tilt": "Right Joystick",
+                "autoFocus": "Menu Button"
+            }
+        },
+        "TeensyNunchuck": {
+            "AW-HN40": {
+                "zoom": "Joystick.Y + Z",
+                "Pan_And_Tilt": "Joystick"
+            }
+        }
+    }
+}

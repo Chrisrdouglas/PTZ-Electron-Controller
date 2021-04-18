@@ -13,6 +13,7 @@ module.exports = class Button{
         this.onPressCallback = []; //callback for a quick press action
         this.onHoldCallback = []; //callback for a hold action
         this.onHoldReleaseCallback = [];
+        this.onChangeCallback = [];
 
         this.holdWatch = null;
         this.type = "Trigger";
@@ -22,6 +23,10 @@ module.exports = class Button{
 
     getLabel(){
         return this.label;
+    }
+
+    getType(){
+        return this.type;
     }
 
     /**
@@ -45,10 +50,25 @@ module.exports = class Button{
         return Date.now() - this.lastDownTime;
     }
 
-    firePressCallback(){
-        if(this.onPressCallback.length > 0 && this.onPressCallback[0])
+    fireChangeCallback(){
+        if(this.onChangeCallback.length > 0 && this.onChangeCallback[this.onChangeCallback.length - 1])
         {
-            this.onPressCallback[0](this);
+            this.onChangeCallback[this.onChangeCallback.length - 1](this);
+        }
+    }
+
+    pushChangeCallback(callback){
+        this.onChangeCallback.push(callback);
+    }
+    
+    popChangeCallback(){
+        return this.onChangeCallback.shift();
+    }
+
+    firePressCallback(){
+        if(this.onPressCallback.length > 0 && this.onPressCallback[this.onPressCallback.length - 1])
+        {
+            this.onPressCallback[this.onPressCallback.length - 1](this);
         }
     }
 
@@ -61,40 +81,40 @@ module.exports = class Button{
     }
 
     fireHoldCallback(){
-        if(this.onHoldCallback.length > 0 && this.onHoldCallback[0])
+        if(this.onHoldCallback.length > 0 && this.onHoldCallback[this.onHoldCallback.length - 1])
         {
-            this.onHoldCallback[0](this);
+            this.onHoldCallback[this.onHoldCallback.length - 1](this);
         }
     }
 
     pushHoldCallback(callback){
-        this.holdCallback.push(callback);
+        this.onHoldCallback.push(callback);
     }
 
     popHoldCallback(){
-        return this.holdCallback.pop();
+        return this.onHoldCallback.pop();
     }
 
     fireHoldReleaseCallback(){
         this.lastHoldReleaseTime = Date.now();
-        if(this.onHoldReleaseCallback.length > 0 && this.onHoldReleaseCallback[0])
+        if(this.onHoldReleaseCallback.length > 0 && this.onHoldReleaseCallback[this.onHoldReleaseCallback.length - 1])
         {
-            this.onHoldReleaseCallback[0](this);
+            this.onHoldReleaseCallback[this.onHoldReleaseCallback.length - 1](this);
         }
     }
 
     pushHoldReleaseCallback(callback){
-        this.holdReleaseCallback.push(callback);
+        this.onHoldReleaseCallback.push(callback);
     }
 
     popHoldReleaseCallback(){
-        return this.holdReleaseCallback.pop();
+        return this.onHoldReleaseCallback.pop();
     }
 
     fireOnDownCallback(){
-        if(this.onDownCallback.length > 0 && this.onDownCallback[0])
+        if(this.onDownCallback.length > 0 && this.onDownCallback[this.onDownCallback.length - 1])
         {
-            this.onDownCallback[0](this);
+            this.onDownCallback[this.onDownCallback.length - 1](this);
         }
 
     }
@@ -108,9 +128,9 @@ module.exports = class Button{
     }
 
     fireOnUpCallback(){
-        if(this.onUpCallback.length > 0 && this.onUpCallback[0])
+        if(this.onUpCallback.length > 0 && this.onUpCallback[this.onUpCallback.length - 1])
         {
-            this.onUpCallback[0](this);
+            this.onUpCallback[this.onUpCallback.length - 1](this);
         }
     }
 
@@ -136,6 +156,7 @@ module.exports = class Button{
         }
         if (this.value != value){
             this.value = value;
+            this.fireChangeCallback();
             if (value == 0){
                 //if the button is wating to see if it's being held then stop that timer
                 if(this.holdWatch){

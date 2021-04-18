@@ -6,17 +6,24 @@ module.exports = class Adapter{
      */
     constructor(config){
         const Driver = require('./driver.js');
+        this.cameraProperties = require('./CameraProperties.json');
         this.cameraName = "AW-HN40";
         this.cameraDriver = new Driver(config);
         this.activationFunction = null;
         this.controller = null;
         this.buttonCommands = config.controllers[config.controllerName][this.cameraName];
+        this.controllerDriver = null;
+        this.panTiltCache = [0,0]; //temp hack so we can do use this tomorrow
+    }
 
+    setControllerDriver(cd){
+        this.controllerDriver = cd;
     }
 
 
     processCommands(){
-        console.log('processCommands')
+        //console.log('processCommands')
+        //no op
     }
 
     /**
@@ -35,12 +42,72 @@ module.exports = class Adapter{
         cameraControls.innerHTML ='<button class="controlPannelButton PowerButton PowerButtonOff" id="powerButton" onclick="cameraAdapter.cameraPowerChange()" onmouseover="cameraAdapter.cameraPowerState()"><b>POWER</b></button>'
     }
 
+
+    runFunction(commandName, controllerElement){
+        var type = controllerElement.getType();
+        if (type == 'Trigger'){
+            var value = controllerElement.getValue();
+            value = this.step(value, {numSteps: 10, shift:.5});
+            this.cameraDriver[commandName](value);
+            console.log(commandName + ': ' + controllerElement.getLabel() + '-> ' + value);
+        }
+        if (type == 'Button'){
+            var value = controllerElement.getValue();
+            console.log(commandName + ': ' + controllerElement.getLabel() + '-> ' + value);
+        }
+        else if (type == 'Joystick'){
+            var value = controllerElement.getValueNormalized(0, 1);
+            console.log(value)
+            console.log(controllerElement.getRawValue())
+            value[0] = this.step(value[0], {numSteps: 4, shift:.5});
+            value[1] = this.step(value[1], {numSteps: 4, shift:.5});
+            if (value[0] != this.panTiltCache[0] || value[1] != this.panTiltCache[1]){
+                this.cameraDriver[commandName](value[0],value[1]);}
+            console.log(commandName + ': ' + controllerElement.getLabel() + '-> (' + value[0] + ', ' + value[1] + ')');
+        }
+        else if (type == 'Joystick Axis'){
+            var value = controllerElement.getNormalizedValue(0,1);
+            value = this.step(value, {numSteps: 10, shift:.5});
+            console.log(commandName + ': ' + controllerElement.getLabel() + '-> ' + value);
+        }
+    }
+
     setController(controller){
         this.controller = controller;
 
         //setup buttons
-        for(var i = 0; i < this.buttonCommands.length; i++){
-            console.log(this.buttonCommands[i])
+        //command is the function that we want to run on the camera
+        console.log(this.buttonCommands)
+        for(var command in this.buttonCommands){
+            console.log(command)
+            var cmdString = this.buttonCommands[command].split('+');
+            for(var cmd in cmdString){
+                cmdString[cmd] = cmdString[cmd].trim();
+            }
+            //this.runFunction(command, this.controller.getByLabel(cmdString[cmdString.length -1]))
+            if (cmdString.length == 1){
+                var callbackGenerator = (c) => {return (e)=> {this.runFunction(c, e);};}
+                //this is a native command for that controller's button/joystick/axis/trigger
+                var element = this.controller.getByLabel(cmdString[0]);
+                console.log(cmdString[0]);
+
+                if (element.getType() == 'Button'){
+                    element.pushPressCallback(callbackGenerator(this.cameraProperties[command].functionName));
+                    console.log(element)
+                }
+                //var element = this.controller.getByLabel(cmdString[0]);
+                else if (element.getType() == 'Trigger'){
+                    var callbackGenerator = (c) => {return (e)=> {this.runFunction(c, e);};}
+                    element.pushChangeCallback(callbackGenerator(this.cameraProperties[command].functionName));
+                    console.log(element)
+                }
+                else if (element.getType() == 'Joystick'){
+                    var callbackGenerator = (c) => {return (e)=> {this.runFunction(c, e);};}
+                    element.pushChangeCallback(callbackGenerator(this.cameraProperties[command].functionName));
+                    console.log(element)
+
+                }
+            }
         }
 
     }
@@ -95,25 +162,17 @@ module.exports = class Adapter{
     }
 
     /**
-     * executes commands on the camera by doing a lookup of the button's associated command and executing it on the camera driver
-     * @param {string} command string with the name of command that needs to be executed
-     * @param {object[]} value
-     */
-    executeCommand(command, value){
-    }
-
-    /**
     * Uses the Math.floor function. Increasing the step size increases the sensitivity.
     * A shift of .5 is recommended.
     * @param {float} x 
     * @param {object} functionParams function paramaters defined in ./configure.json
-    * @param {int} functionParams.numSteps Step size. Defaults to 100
+    * @param {int} functionParams.numSteps Step size that should be some even number. Defaults to 100
     * @param {float} functionParams.shift shifts function to the left or right. For example: +5 will shift function to the left. Defaults to 0.
     * @returns floor(x*steps + shift)/steps
     */
     step(x, functionParams){
-        var numSteps = 100;
-        var shift = 0;
+        var numSteps = 10;
+        var shift = .5;
         if (functionParams.numSteps){ numSteps = functionParams.numSteps;}
         if (functionParams.shift){ shift = functionParams.shift;}
         return Math.floor(x*numSteps+shift)/numSteps;

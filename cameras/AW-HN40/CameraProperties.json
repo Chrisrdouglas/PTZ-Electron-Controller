@@ -1,62 +1,77 @@
 {
     "zoomIn": {
+        "functionName": "zoomIn",
         "inputPattern": "T+B?",
         "inputType": "Trigger"
     },
     "zoomOut": {
+        "functionName": "zoomOut",
         "inputPattern": "T+B?",
         "inputType": "Trigger"
     },
     "zoom": {
+        "functionName": "zoom",
         "inputPattern": "J,A+B?",
         "inputType": "Joystick Axis"
     },
     "focusIn": {
+        "functionName": "focusIn",
         "inputPattern": "T+B?",
         "inputType": "Trigger"
     },
     "focusOut": {
+        "functionName": "focusOut",
         "inputPattern": "T+B?",
         "inputType": "Trigger"
     },
     "focus": {
+        "functionName": "focus",
         "inputPattern": "J,A+B?",
-        "inputType": "Trigger"
+        "inputType": "Joystick Axis"
     },
     "panLeft": {
+        "functionName": "panLeft",
         "inputPattern": "T+B?",
         "inputType": "Trigger"
     },
     "panRight": {
+        "functionName": "panRight",
         "inputPattern": "T+B?",
         "inputType": "Trigger"
     },
     "pan": {
+        "functionName": "pan",
         "inputPattern": "J,A+B?",
         "inputType": "Joystick Axis"
     },
     "tiltUp": {
+        "functionName": "tiltUp",
         "inputPattern": "T+B?",
         "inputType": "Trigger"
     },
     "tiltDown": {
+        "functionName": "tiltDown",
         "inputPattern": "T+B?",
         "inputType": "Trigger"
     },
     "tilt": {
+        "functionName": "tilt",
         "inputPattern": "J,A+B?",
         "inputType": "Joystick Axis"
 
     },
     "Pan_And_Tilt": {
+        "functionName": "panTilt",
         "inputPattern": "J+B?",
         "inputType": "Joystick"
     },
     "autoFocus": {
+        "functionName": "autoFocus",
         "inputPattern": "B",
         "inputType": "Button"
     },
     "power": {
+        "functionName": "power",
         "inputPattern": "B",
         "inputType": "Button"
     }

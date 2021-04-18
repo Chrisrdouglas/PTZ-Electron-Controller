@@ -23,20 +23,27 @@ module.exports = class Driver {
         this.sticks = [document.getElementById('leftStick'),
             document.getElementById('rightStick')];
 
+        //maps the button indexes from gamepad to the button names
+        try { this.mappings = require('./mappings.json') }
+        catch (e) { console.log('mappings.json is missing') }
+
+        //Controller Class
+        this.controller = new Controller(this.mappings);
+
         
         //cameraDriver
         this.cameraAdapter = cameraAdapter;
         try { this.cameraAdapter.setControllerDriver(this) }
-        catch (e) { console.log('This Camera Driver does not have a setControllerDriver function') }
+        catch (e) { console.log(e); }
+        try { this.cameraAdapter.setController(this.controller) }
+        catch (e) { console.log(e); }
         
         // global configuration file
         try { this.config = require('../../configure.json'); }
         catch (e) { this.config = null; }
 
         
-        //maps the button indexes from gamepad to the button names
-        try { this.mappings = require('./mappings.json') }
-        catch (e) { console.log('mappings.json is missing') }
+
 
         //
         //console.log(this.cameraAdapter)
@@ -48,9 +55,7 @@ module.exports = class Driver {
         this.rightStickCoords = [304, 173];
 
         //raw controller data
-        this.controller = new Controller(this.mappings);
-
-        this.cameraAdapter.setController(this.controller);
+        //this.controller = new Controller(this.mappings);
     }
 
     setControllerListener(intervalListener){

@@ -154,45 +154,25 @@ module.exports = class Controller {
         return returnString;
     }
 
-    /*getStateFromString(stateString){
-        stateElements = stateString.split('+');
-        for(var i in stateElements){
-            stateElements[i] = stateElements[i].trim().split(',');
-            for (var j in stateElements[i]){
-                stateElements[i][j] = stateElements[i][j].trim();
-            }
+    getByLabel(label){
+        label = label.split(',');
+        if (label.length > 1){ // it's gotta be a joystick with an axis
+            var description = this.mapLabels[label[0]];
+            if (!description){return null;} //putting this here to handle the case where the element doesn't exist
+            return this.joysticks[description.index].getAxis(label[1]);
         }
+        var description = this.mapLabels[label];
+        if (!description){return null;}
+        if(description.type == "Joystick"){
+            return this.joysticks[description.index];
+        }
+        return this.buttons[description.index];
+    }
 
-        for(var i in stateElements){
-            if(stateElements[i].length == 1){
-                //either J or T or B
-                try{
-                    var key = this.mapLabels[stateElements[i][0]];
-                    if (key.type == "Joystick"){
-                        stateElements[i] = this.joysticks[key.index].getValueNormalized();
-                    }
-                    else if (key.type == "Trigger"){
-                        stateElements[i] = this.joysticks[key.index].getValueNormalized();
-                    }
-                }
-                catch (e) {console.log(e);}
-            }
-            else if (stateElements[i].length == 2){
-                // must be J,A
-                try{
-                    var joystickIndex = this.mapLables[stateElements[i][0]];
-                    var joystick = this.joysticks[joystickIndex].getValueNormalized();
-                    if (stateElements[i][1] == 'X' || stateElements[i][1] == 'x') {stateElements[i] = joystick[0];}
-                    else if (stateElements[i][1] == 'Y' || stateElements[i][1] == 'y')  {stateElements[i] = joystick[1];}
-                    else {throw 'Neither X or Y was given when attempting to read an axis from a Joystick';}
-                }
-                catch (e){//joystick name not found
-                    console.log(e);
-                }
-            }
-            else {return null;}//something had to have gone wrong in this case
-        }
-    }*/
+    pushOnDownCallback(label, callback){
+        var item = this.mapLabels[label];
+        return this.buttons[item.index].pushOnDownCallback(callback);
+    }
 
     setNormalizationRange(low, high){
         for (var i in this.joysticks){

@@ -27,6 +27,10 @@ module.exports = class Button{
         return this.state;
     }
 
+    getType(){
+        return this.type;
+    }
+
     getLabel(){
         return this.label;
     }
@@ -58,39 +62,39 @@ module.exports = class Button{
     }
 
     firePressCallback(){
-        if(this.onPressCallback.length > 0 && this.onPressCallback[0])
+        if(this.onPressCallback.length > 0 && this.onPressCallback[this.onPressCallback.length - 1])
         {
-            this.onPressCallback[0](this);
+            this.onPressCallback[this.onPressCallback.length - 1](this);
         }
     }
 
     pushPressCallback(callback){
-        this.pressCallback.push(callback);
+        this.onPressCallback.push(callback);
     }
     
     popPressCallback(){
-        return this.pressCallback.shift();
+        return this.onPressCallback.pop();
     }
 
     fireHoldCallback(){
-        if(this.onHoldCallback.length > 0 && this.onHoldCallback[0])
+        if(this.onHoldCallback.length > 0 && this.onHoldCallback[this.onHoldCallback.length - 1])
         {
-            this.onHoldCallback[0](this);
+            this.onHoldCallback[this.onHoldCallback.length - 1](this);
         }
     }
 
     pushHoldCallback(callback){
-        this.holdCallback.push(callback);
+        this.onHoldCallback.push(callback);
     }
 
     popHoldCallback(){
-        return this.holdCallback.pop();
+        return this.onHoldCallback.pop();
     }
 
     fireHoldReleaseCallback(){
-        if(this.onHoldReleaseCallback.length > 0 && this.onHoldReleaseCallback[0])
+        if(this.onHoldReleaseCallback.length > 0 && this.onHoldReleaseCallback[this.onHoldReleaseCallback.length - 1])
         {
-            this.onHoldReleaseCallback[0](this);
+            this.onHoldReleaseCallback[this.onHoldReleaseCallback.length - 1](this);
         }
     }
 
@@ -103,9 +107,10 @@ module.exports = class Button{
     }
 
     fireOnDownCallback(){
-        if(this.onDownCallback.length > 0 && this.onDownCallback[0])
+        if(this.onDownCallback.length > 0 && this.onDownCallback[this.onDownCallback.length - 1])
         {
-            this.onDownCallback[0](this);
+            console.log(this.onDownCallback[0])
+            this.onDownCallback[this.onDownCallback.length - 1](this);
         }
 
     }
@@ -115,13 +120,13 @@ module.exports = class Button{
     }
 
     popOnDownCallback(){
-       return this.onDownCallback.shift();
+       return this.onDownCallback.pop();
     }
 
     fireOnUpCallback(){
-        if(this.onUpCallback.length > 0 && this.onUpCallback[0])
+        if(this.onUpCallback.length > 0 && this.onUpCallback[this.onUpCallback.length - 1])
         {
-            this.onUpCallback[0](this);
+            this.onUpCallback[this.onUpCallback.length - 1](this);
         }
     }
 
@@ -130,7 +135,7 @@ module.exports = class Button{
     }
 
     popOnUpCallback(){
-        return this.onUpCallback.shift();
+        return this.onUpCallback.pop();
     }
 
     /**
