@@ -63,7 +63,7 @@ module.exports = class Driver {
      */
     focusIn(percentage, callback){
         var speed = this.calculateSpeedFromPercentage(.5 + .5 *percentage);
-        speed.padNum(speed, 2);
+        speed = padNum(speed, 2);
         this.sendPTZCommand(this.commands.commands.focus+speed, callback)
     }
 
@@ -74,7 +74,7 @@ module.exports = class Driver {
      */
     focusOut(percentage, callback){
         var speed = this.calculateSpeedFromPercentage(.5 - .5 *percentage);
-        speed.padNum(speed, 2);
+        speed = padNum(speed, 2);
         this.sendPTZCommand(this.commands.commands.focus+speed, callback)
     }
 
@@ -308,7 +308,7 @@ module.exports = class Driver {
      * @param {function} callback Optional callback
      */
     zoomOut(percent, callback) {
-        var speed = this.calculateSpeedFromPercentage(.5 + .5 * percent);
+        var speed = this.calculateSpeedFromPercentage(.5 - .5 * percent);
         speed = this.padNum(speed, 2); //make this into a 0 padded number
         this.sendPTZCommand(this.commands.commands.zoom + speed, callback);
     }

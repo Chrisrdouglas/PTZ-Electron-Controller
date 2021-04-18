@@ -8,12 +8,14 @@
             "AW-HN40": {
                 "zoomIn": "RT",
                 "zoomOut": "LT",
-                "Pan_And_Tilt": "Right Joystick"
+                "Pan_And_Tilt": "Right Joystick",
+                "autoFocus": "Menu Button"
             }
         },
         "TeensyNunchuck": {
             "AW-HN40": {
-                "zoom": "Joystick.Y + Z"
+                "zoom": "Joystick.Y + Z",
+                "Pan_And_Tilt": "Joystick"
             }
         }
     }

@@ -13,12 +13,12 @@
         <input class="normalInput" type="text" id="cameraIP" name="cameraIP" value="">
     </div>
     <div class="space"><b>Camera Type:</b>
-        <select name="cameraType" id="cameraType" onchange="driver.deviceChanged('camera')">
+        <select name="cameraType" id="cameraType" onchange="adapter.deviceChanged('camera')">
 
         </select>
     </div>
     <div class="space"><b>Controller:</b>
-        <select name="controllerName" id="controllerName" onchange="driver.deviceChanged('controller')"></select>
+        <select name="controllerName" id="controllerName" onchange="adapter.deviceChanged('controller')"></select>
     </div>
     <h1>Button Mappings</h1>
     <div class="center" id="controller"></div>
@@ -27,11 +27,11 @@
             <h2>This Application's Mappings (in progress)</h2>
             <div class="space"><b>Move to Left Tab:</b>
                 <input class="controllerInput" type="text" id="tabLeft" name="tabLeft" value="" readonly >
-                <button class="clearButton" onmouseup="driver.clear('tabLeft')">Clear</button>
+                <button class="clearButton" onmouseup="adapter.clear('tabLeft')">Clear</button>
             </div>
             <div class="space"><b>Move to Right Tab:</b>
                 <input class="controllerInput" type="text" id="tabRight" name="tabRight" value="" readonly>
-                <button class="clearButton" onmouseup="driver.clear('tabRight')">Clear</button>
+                <button class="clearButton" onmouseup="adapter.clear('tabRight')">Clear</button>
             </div>
         </div>
         <div id="cameraMappings"></div>
@@ -46,8 +46,8 @@
         <button class="applyButton" onmousedown="save()">Apply</button>
     </div>
     <script>
-        const Driver = require('./driver.js')
-        var driver = new Driver();
+        const Adapter = require('./adapter.js')
+        var adapter = new Adapter();
     </script>
     <script src="./settings.js"></script>
 </body>

@@ -1,48 +1,61 @@
+const Controller = require("./controller/Controller");
 module.exports = class Driver {
 
-    constructor(cameraDriver) {
+    constructor(cameraAdapter) {
         this.buttons = [document.getElementById('aButton'),
-        document.getElementById('bButton'),
-        document.getElementById('xButton'),
-        document.getElementById('yButton'),
-        document.getElementById('leftBumper'),
-        document.getElementById('rightBumper'),
-        document.getElementById('leftTrigger'),
-        document.getElementById('rightTrigger'),
-        document.getElementById('selectButton'),
-        document.getElementById('startButton'),
-        document.getElementById('leftStick'),
-        document.getElementById('rightStick'),
-        document.getElementById('dPadUp'),
-        document.getElementById('dPadDown'),
-        document.getElementById('dPadLeft'),
-        document.getElementById('dPadRight'),
-        document.getElementById('xBoxButton')
+            document.getElementById('bButton'),
+            document.getElementById('xButton'),
+            document.getElementById('yButton'),
+            document.getElementById('leftBumper'),
+            document.getElementById('rightBumper'),
+            document.getElementById('leftTrigger'),
+            document.getElementById('rightTrigger'),
+            document.getElementById('selectButton'),
+            document.getElementById('startButton'),
+            document.getElementById('leftStick'),
+            document.getElementById('rightStick'),
+            document.getElementById('dPadUp'),
+            document.getElementById('dPadDown'),
+            document.getElementById('dPadLeft'),
+            document.getElementById('dPadRight'),
+            document.getElementById('xBoxButton')
         ];
         this.sticks = [document.getElementById('leftStick'),
-        document.getElementById('rightStick')];
+            document.getElementById('rightStick')];
+
+        //maps the button indexes from gamepad to the button names
+        try { this.mappings = require('./mappings.json') }
+        catch (e) { console.log('mappings.json is missing') }
+
+        //Controller Class
+        this.controller = new Controller(this.mappings);
+
         
         //cameraDriver
-        this.cameraDriver = cameraDriver;
-        this.interval = null
-        try { this.cameraDriver.setController(this) }
-        catch (e) { console.log('This Camera Driver does not have a setController function') }
+        this.cameraAdapter = cameraAdapter;
+        try { this.cameraAdapter.setControllerDriver(this) }
+        catch (e) { console.log(e); }
+        try { this.cameraAdapter.setController(this.controller) }
+        catch (e) { console.log(e); }
         
         // global configuration file
         try { this.config = require('../../configure.json'); }
         catch (e) { this.config = null; }
+
         
-        //maps the button indexes from gamepad to the button names
-        try { this.mappings = require('./mappings.json') }
-        catch (e) { console.log('mappings.json is missing') }
+
+
+        //
+        //console.log(this.cameraAdapter)
+        //console.log(this.config)
+        //console.log(this.config.controllers[this.mappings.controllerName][this.cameraAdapter.getCameraName()])
         
         //x and y coords for where the centers of the joystick circles should be
         this.leftStickCoords = [122, 100];
         this.rightStickCoords = [304, 173];
 
         //raw controller data
-        this.rawData = null;
-        this.cameraState = null;
+        //this.controller = new Controller(this.mappings);
     }
 
     setControllerListener(intervalListener){
@@ -58,17 +71,14 @@ module.exports = class Driver {
      * @param {gamepad} gp state of the controller
      */
     update(gp) {
-        this.rawData = gp;
-        var Buttons = [];
-        var Joysticks = []
-        var Triggers = []
+        
+        this.controller.update(gp);
         // update display on application and collect information about the buttons into an object
         for (var i = 0; i < 6; i++) {
             var displayButton = this.buttons[i]; //didn't need to make a seperate var but it
             var buttonState = gp.buttons[i];     // makes the code more readable for me
             if (buttonState.pressed) {
                 displayButton.classList.add('buttonPressed');
-                Buttons.push({ label: this.mappings.buttonIndexes[i], pressed: true, value: 1 })
             }
             else {
                 if (displayButton.classList.contains('buttonPressed')) {
@@ -77,13 +87,10 @@ module.exports = class Driver {
             }
         }
 
-        //handle triggers which are "buttons" for whatever reason
+        //update display for the triggers
         for (var i = 6; i < 8; i++) {
             var displayButton = this.buttons[i];
             var buttonState = gp.buttons[i];
-            if (buttonState.pressed) {
-                Triggers.push({ label: this.mappings.buttonIndexes[i], pressed: true, value: buttonState.value })
-            }
             displayButton.setAttribute('fill-opacity', Math.floor(buttonState.value * 100) + '%');
         }
 
@@ -93,7 +100,6 @@ module.exports = class Driver {
             var buttonState = gp.buttons[i];
             if (buttonState.pressed) {
                 displayButton.classList.add('buttonPressed');
-                Buttons.push({ label: this.mappings.buttonIndexes[i], pressed: true, value: 1 })
             }
             else {
                 if (displayButton.classList.contains('buttonPressed')) {
@@ -111,66 +117,15 @@ module.exports = class Driver {
         this.sticks[1].setAttribute('cx', this.rightStickCoords[0] + 17 * gp.axes[2]);
         this.sticks[1].setAttribute('cy', this.rightStickCoords[1] + 17 * gp.axes[3]);
 
-        var leftStick = { label: 'Left Joystick' }
-        var rightStick = { label: 'Right Joystick' }
-        //get values from the two joysticks.
-        //this long chain of if statements looks disgusting
-        //but is necessary
-        if (Math.abs(gp.axes[0]) > .095) {
-            leftStick.X = gp.axes[0];
-            leftStick.xActive = true;
-        }
-        else {
-            leftStick.X = 0.0;
-            leftStick.xActive = false;
-        }
-
-        if (Math.abs(gp.axes[1]) > .095) {
-            leftStick.Y = gp.axes[1];
-            leftStick.yActive = true;
-        }
-        else {
-            leftStick.Y = 0.0;
-            leftStick.yActive = false;
-        }
-
-        if (Math.abs(gp.axes[2]) > .095) {
-            rightStick.X = gp.axes[2];
-            rightStick.xActive = true;
-        }
-        else {
-            rightStick.X = 0.0;
-            rightStick.xActive = false;
-        }
-
-        if (Math.abs(gp.axes[3]) > .095) {
-            rightStick.Y = gp.axes[3];
-            rightStick.yActive = true;
-        }
-        else {
-            rightStick.Y = 0.0;
-            rightStick.yActive = false;
-        }
-
-        Joysticks.push(leftStick)
-        Joysticks.push(rightStick)
-        
-        
-        
-        this.controllerState = {
-            Buttons:Buttons,
-            Joysticks:Joysticks,
-            Triggers:Triggers
-        }
-
-        try{
-            if (this.cameraDriver.getSubscribed()){
-                this.cameraDriver.updateControllerState(this.controllerState);
+        /*try{
+            if (this.cameraAdapter.getSubscribed()){
+                this.cameraAdapter.updateControllerState(this.controller);
             }
         }
-        catch (e) {
-            console.log(e)
-        }
+        catch (e){
+            console.log(e);
+        }*/
+
 
         //process commands attached to buttons
         this.processCommands();
@@ -204,7 +159,10 @@ module.exports = class Driver {
      * controller deadzone and 
      * @param {gamepad} gp gamepad object that is given to us every 130 ms
      */
-    processCommands(gp) {
+    processCommands() {
+
+        //https://www.gamedev.net/blogs/entry/2250186-designing-a-robust-input-handling-system-for-games/
+        this.cameraAdapter.processCommands();
     }
 
 
